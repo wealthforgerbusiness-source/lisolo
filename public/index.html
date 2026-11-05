@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lisolo – Messages anonymes et quiz</title>
+<meta name="description" content="Partage ton lien Lisolo, reçois des messages anonymes et lance des quiz pour tes amis.">
+<meta name="theme-color" content="#F85A03">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lisolo">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<link rel="preload" as="image" href="/images/lisolo-symbole-blanc.png">
+<script>document.documentElement.className+=' js chk'</script>
+<style>
+:root{--o:#F85A03;--o2:#D84C00;--o3:#B53E00;--tint:#FFF2EA;--tint2:#FFE3D2;--ink:#1B120D;--mut:#6F615A;--line:#EADFD7;--ease:cubic-bezier(.2,.75,.2,1);--maxw:1120px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+[hidden]{display:none!important}
+section[id]{scroll-margin-top:72px}
+.ic{width:22px;height:22px;flex:none}
+:focus-visible{outline:3px solid var(--o3);outline-offset:3px;border-radius:8px}
+
+.splash{position:fixed;inset:0;z-index:200;background:var(--o);display:grid;place-items:center;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s,visibility .45s}
+html.chk .splash{opacity:1;visibility:visible;pointer-events:auto;animation:splashOff .01s 3.2s forwards}
+@keyframes splashOff{to{opacity:0;visibility:hidden;pointer-events:none}}
+.splash img{width:84px;height:auto;animation:beat 1.6s var(--ease) infinite}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.12) rotate(-3deg)}30%{transform:scale(.97)}45%{transform:scale(1)}}
+
+.rv{transition:opacity .7s var(--ease),transform .7s var(--ease),box-shadow .35s,border-color .35s,background .3s;transition-delay:calc(var(--d,0)*90ms)}
+html.rdy .rv:not(.in){opacity:0;transform:translateY(26px)}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;padding-top:env(safe-area-inset-top);color:#fff;transition:background .3s,color .3s,box-shadow .3s}
+.nav.solid{background:rgba(255,255,255,.92);color:var(--ink);box-shadow:0 1px 0 var(--line);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.nav-in{max-width:var(--maxw);margin:0 auto;height:64px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.01em}
+.nav.solid .brand{color:var(--o)}
+.logo-s{display:block;width:32px;height:30px;background:currentColor;-webkit-mask:url(/images/lisolo-symbole-blanc.png) center/contain no-repeat;mask:url(/images/lisolo-symbole-blanc.png) center/contain no-repeat}
+.links{display:none;gap:28px;font-weight:600;font-size:15px}
+.links a{opacity:.92;transition:opacity .2s}
+.links a:hover{opacity:1}
+.nav-cta{display:flex;align-items:center;gap:6px}
+.nl{font-weight:700;font-size:15px;padding:10px 12px}
+.nb{background:#fff;color:var(--o3);font-weight:800;font-size:15px;padding:11px 18px;border-radius:999px;transition:transform .15s,background .2s,color .2s}
+.nb:active{transform:scale(.97)}
+.nav.solid .nb{background:var(--o);color:#fff}
+@media(min-width:900px){.links{display:flex}}
+
+.hero{position:relative;background:var(--o);color:#fff;overflow:hidden;padding:calc(env(safe-area-inset-top) + 104px) 20px 72px;border-radius:0 0 40px 40px;min-height:100svh;display:flex;align-items:center}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 15% 10%,rgba(255,255,255,.18),transparent 45%),radial-gradient(circle at 90% 95%,rgba(0,0,0,.16),transparent 50%)}
+.blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.08);animation:float 10s ease-in-out infinite alternate}
+.b1{width:360px;height:360px;top:-120px;right:-80px}
+.b2{width:240px;height:240px;bottom:-60px;left:-60px;animation-delay:-4s;background:rgba(0,0,0,.07)}
+@keyframes float{to{transform:translate(18px,-22px)}}
+.hero-in{position:relative;z-index:2;max-width:var(--maxw);width:100%;margin:0 auto;display:grid;gap:48px;align-items:center}
+.eyebrow{display:inline-block;padding:8px 16px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);font-weight:700;font-size:13.5px;margin-bottom:22px}
+.hl{font-size:clamp(36px,9vw,68px);line-height:1.04;font-weight:800;letter-spacing:-.025em}
+.hl .ln{display:block;overflow:hidden;padding-bottom:.1em}
+.hl .ln>span{display:block}
+html.rdy .hl .ln>span{transform:translateY(110%);animation:up .9s var(--ease) forwards}
+html.rdy .hl .ln:nth-child(2)>span{animation-delay:.12s}
+html.rdy .hl .ln:nth-child(3)>span{animation-delay:.24s}
+@keyframes up{to{transform:none}}
+.lead{font-size:clamp(16px,2.4vw,20px);max-width:520px;margin-top:22px;font-weight:500}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.inst{margin-top:16px;font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:4px}
+.note{margin-top:16px;font-size:14px;font-weight:600;opacity:.92}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 26px;border-radius:16px;font-weight:800;font-size:16px;transition:transform .15s,box-shadow .2s,background .2s,color .2s,border-color .2s}
+.btn:active{transform:scale(.98)}
+.btn .ic{width:20px;height:20px;transition:transform .25s var(--ease)}
+.btn:hover .ic{transform:translateX(4px)}
+.btn.w{background:#fff;color:var(--o3);box-shadow:0 14px 30px rgba(0,0,0,.2);animation:pulse 2.8s 2s infinite}
+.btn.w:hover{transform:translateY(-2px)}
+@keyframes pulse{0%{box-shadow:0 14px 30px rgba(0,0,0,.2),0 0 0 0 rgba(255,255,255,.55)}70%,100%{box-shadow:0 14px 30px rgba(0,0,0,.2),0 0 0 18px rgba(255,255,255,0)}}
+.btn.g{border:2px solid rgba(255,255,255,.6);color:#fff}
+.btn.g:hover{background:rgba(255,255,255,.14);border-color:#fff}
+.btn.pri{background:var(--o);color:#fff;box-shadow:0 12px 26px rgba(248,90,3,.32)}
+.btn.pri:hover{background:var(--o2);transform:translateY(-2px)}
+.btn.gh2{border:2px solid var(--line);color:var(--ink);background:#fff}
+.btn.gh2:hover{border-color:var(--o);background:var(--tint)}
+
+.stage{position:relative;display:flex;justify-content:center;align-items:center;min-height:580px}
+.rings{position:absolute;inset:0;pointer-events:none}
+.rings span{position:absolute;left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;border:2px solid rgba(255,255,255,.5);opacity:0;animation:ring 4.5s var(--ease) infinite}
+.rings span:nth-child(2){animation-delay:1.5s}
+.rings span:nth-child(3){animation-delay:3s}
+@keyframes ring{0%{transform:scale(.8);opacity:.7}100%{transform:scale(2.4);opacity:0}}
+.phone-wrap{position:relative;z-index:2;animation:bob 5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.phone{width:288px;height:560px;background:#fff;border:8px solid var(--o3);border-radius:44px;box-shadow:0 40px 80px rgba(0,0,0,.3);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;transform:perspective(1100px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out}
+.ph-top{display:flex;align-items:center;justify-content:space-between;padding:22px 20px 12px}
+.ph-t{font-weight:800;font-size:20px}
+.ph-badge{min-width:26px;height:26px;border-radius:13px;background:var(--o);color:#fff;font-size:13px;font-weight:800;display:grid;place-items:center;padding:0 8px;animation:pop 2.4s ease-in-out infinite}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.ph-body{flex:1;padding:4px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.mb{display:flex;gap:10px;align-items:flex-start;background:var(--tint);border-radius:18px;padding:12px;animation:mbIn 9s var(--ease) infinite both}
+.m2{animation-delay:1.2s}
+.m3{animation-delay:2.4s}
+@keyframes mbIn{0%{opacity:0;transform:translateY(18px) scale(.96)}9%,84%{opacity:1;transform:none}94%,100%{opacity:0;transform:translateY(-8px)}}
+.av{width:34px;height:34px;border-radius:50%;background:var(--o);color:#fff;display:grid;place-items:center;flex:none}
+.av .ic{width:17px;height:17px}
+.mb b{display:block;font-size:12px;color:var(--o3);font-weight:800;letter-spacing:.02em}
+.mb p{font-size:13.5px;line-height:1.35;font-weight:600;margin-top:2px}
+.qz{margin-top:auto;margin-bottom:12px;border:1.5px solid var(--line);border-radius:18px;padding:14px}
+.qz-h{font-weight:800;font-size:14px}
+.bar{height:8px;border-radius:6px;background:var(--tint2);margin:10px 0;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:6px;background:var(--o);animation:fillbar 9s var(--ease) infinite}
+@keyframes fillbar{0%,10%{width:0}70%,100%{width:72%}}
+.qz-f{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);font-weight:600}
+.ph-nav{display:grid;grid-template-columns:repeat(5,1fr);align-items:center;border-top:1px solid var(--line);padding:10px 6px 14px;background:#fff}
+.pn{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;color:#A09189;font-size:10.5px;font-weight:700}
+.pn.on{color:var(--o)}
+.pn.mid{color:#fff}
+.pl{display:grid;place-items:center;width:46px;height:32px;border-radius:11px;background:var(--o);box-shadow:-3px 0 0 var(--tint2),3px 0 0 var(--tint2)}
+.pn.mid .ic{width:20px;height:20px}
+.bd{position:absolute;top:-6px;right:calc(50% - 20px);min-width:16px;height:16px;border-radius:8px;background:var(--o);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px;font-weight:800}
+.chip{position:absolute;z-index:3;display:none;align-items:center;gap:8px;background:#fff;color:var(--ink);padding:10px 14px;border-radius:14px;font-weight:700;font-size:13px;box-shadow:0 16px 34px rgba(0,0,0,.22);animation:bob 6s ease-in-out infinite}
+.chip .ic{width:18px;height:18px;color:var(--o)}
+.c1{top:60px;left:0}
+.c2{bottom:70px;right:0;animation-delay:-2.5s}
+@media(min-width:520px){.chip{display:flex}}
+@media(min-width:960px){.hero-in{grid-template-columns:1.1fr .9fr}.hero{padding-bottom:96px}}
+
+.sec{padding:96px 20px}
+.sec.t{background:var(--tint)}
+.wrap{max-width:var(--maxw);margin:0 auto}
+.kick{display:inline-block;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--o)}
+.h2{font-size:clamp(28px,5vw,44px);line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:12px;max-width:640px}
+.sub2{color:var(--mut);font-size:17px;margin-top:14px;max-width:560px}
+.head{margin-bottom:48px}
+
+.steps{display:grid;gap:18px}
+@media(min-width:860px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px}
+.num{width:48px;height:48px;border-radius:16px;background:var(--o);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;margin-bottom:18px;box-shadow:0 10px 20px rgba(248,90,3,.3)}
+.step h3{font-size:20px;font-weight:800}
+.step p{color:var(--mut);margin-top:8px}
+
+.grid{display:grid;gap:18px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:960px){.grid{grid-template-columns:repeat(3,1fr)}}
+.fc{background:#fff;border:1px solid var(--line);border-radius:24px;padding:26px}
+.fc:hover{transform:translateY(-6px);box-shadow:0 22px 44px rgba(27,18,13,.1);border-color:var(--o)}
+.fi{width:52px;height:52px;border-radius:16px;background:var(--tint);color:var(--o);display:grid;place-items:center;margin-bottom:18px;transition:background .3s,color .3s,transform .4s var(--ease)}
+.fc:hover .fi{background:var(--o);color:#fff;transform:rotate(-6deg) scale(1.06)}
+.fc h3{font-size:19px;font-weight:800}
+.fc p{color:var(--mut);margin-top:8px;font-size:15.5px}
+
+.demo-g{display:grid;gap:36px;align-items:center}
+@media(min-width:900px){.demo-g{grid-template-columns:1fr 1fr;gap:64px}}
+.demo{background:#fff;border:1px solid var(--line);border-radius:28px;padding:26px;box-shadow:0 30px 60px rgba(248,90,3,.12);min-height:400px;display:flex;flex-direction:column}
+.dq-h{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dq-n{font-size:13px;font-weight:800;color:var(--o)}
+.dots{display:flex;gap:6px}
+.d{display:block;width:26px;height:6px;border-radius:4px;background:var(--line);transition:background .3s}
+.d.on{background:var(--o)}
+.d.cur{background:var(--tint2)}
+.dq-q{font-size:22px;line-height:1.25;font-weight:800;margin:22px 0 18px;animation:rise .45s var(--ease)}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.opts{display:grid;gap:10px;margin-top:auto}
+.opt{display:flex;align-items:center;gap:14px;text-align:left;border:2px solid var(--line);border-radius:16px;padding:14px 16px;font-weight:700;font-size:16px;background:#fff;transition:border-color .2s,background .2s,color .2s,transform .15s,opacity .2s}
+.opt:hover:not(:disabled){border-color:var(--o);background:var(--tint)}
+.opt:active:not(:disabled){transform:scale(.98)}
+.ol{width:32px;height:32px;border-radius:10px;background:var(--tint);color:var(--o3);display:grid;place-items:center;font-weight:800;flex:none;transition:background .2s,color .2s}
+.opt.ok{background:var(--o);border-color:var(--o);color:#fff}
+.opt.ok .ol{background:#fff;color:var(--o)}
+.opt.no{border-color:var(--o3);background:var(--tint);animation:shake .4s}
+.opt:disabled{cursor:default}
+.opt:disabled:not(.ok):not(.no){opacity:.5}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.dres{text-align:center;margin:auto 0;display:flex;flex-direction:column;gap:16px;align-items:center;animation:rise .5s var(--ease)}
+.dscore{font-size:76px;font-weight:800;color:var(--o);line-height:1}
+.dmsg{font-size:18px;font-weight:700}
+.dres .btn{width:100%}
+
+.plans{display:grid;gap:26px;align-items:stretch}
+@media(min-width:800px){.plans{grid-template-columns:1fr 1fr;max-width:880px}}
+.plan{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:28px;padding:32px;display:flex;flex-direction:column;gap:22px}
+.plan.pro{border-color:var(--o);box-shadow:0 30px 60px rgba(248,90,3,.18)}
+.tag{position:absolute;top:-14px;left:32px;background:var(--o);color:#fff;font-size:12.5px;font-weight:800;padding:6px 14px;border-radius:999px}
+.pname{font-weight:800;font-size:18px}
+.price{font-size:46px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-top:8px}
+.price small{font-size:16px;color:var(--mut);font-weight:700;letter-spacing:0}
+.plan ul{list-style:none;display:grid;gap:12px;flex:1}
+.plan li{display:flex;gap:12px;align-items:flex-start;font-weight:600;font-size:15.5px}
+.plan li .ic{width:20px;height:20px;color:var(--o);margin-top:2px}
+.plan .btn{width:100%}
+.pnote{font-size:13.5px;color:var(--mut);font-weight:600}
+
+.faq{max-width:760px;display:grid;gap:12px}
+.faq details{border:1.5px solid var(--line);border-radius:18px;background:#fff;transition:border-color .2s}
+.faq details[open]{border-color:var(--o)}
+.faq summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;font-weight:800;font-size:17px;cursor:pointer}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .ic{color:var(--o);transition:transform .3s var(--ease)}
+.faq details[open] summary .ic{transform:rotate(180deg)}
+.faq p{padding:0 20px 20px;color:var(--mut);animation:rise .35s var(--ease)}
+
+.band{position:relative;overflow:hidden;background:var(--o);color:#fff;text-align:center;padding:96px 20px;margin:0 12px;border-radius:36px}
+.band .rings span{width:260px;height:260px;margin:-130px 0 0 -130px}
+.band h2{position:relative;font-size:clamp(30px,6vw,52px);font-weight:800;line-height:1.08;letter-spacing:-.02em;max-width:720px;margin:0 auto}
+.band p{position:relative;margin:18px auto 30px;max-width:520px;font-weight:500;font-size:18px}
+.band .btn{position:relative}
+
+.foot{background:#fff;padding:48px 20px calc(40px + env(safe-area-inset-bottom))}
+.foot-in{max-width:var(--maxw);margin:0 auto;display:flex;flex-wrap:wrap;gap:20px 40px;justify-content:space-between;align-items:center}
+.foot .brand{color:var(--o)}
+.fl{display:flex;flex-wrap:wrap;gap:8px 24px;font-weight:600;color:var(--mut);font-size:15px}
+.fl a:hover{color:var(--o)}
+.copy{width:100%;color:var(--mut);font-size:14px}
+
+@media(max-width:380px){.nl{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0s!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-quiz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.8"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 8.4-8 9-4.6-.6-8-4-8-9V6l8-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="3"/><path d="M11 18.5h2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </defs>
+</svg>
+
+<div class="splash" aria-hidden="true"><img src="/images/lisolo-symbole-blanc.png" alt="" width="84" height="80"></div>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="/" aria-label="Lisolo, accueil"><span class="logo-s" aria-hidden="true"></span><span>Lisolo</span></a>
+    <nav class="links" aria-label="Sections">
+      <a href="#how">Comment ça marche</a>
+      <a href="#features">Fonctions</a>
+      <a href="#pricing">Offres</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="nl" href="/login">Connexion</a>
+      <a class="nb" href="/login#signup">Commencer</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="top">
+    <span class="blob b1"></span><span class="blob b2"></span>
+    <div class="hero-in">
+      <div class="hero-copy">
+        <span class="eyebrow rv">Messages anonymes et quiz pour la RDC</span>
+        <h1 class="hl"><span class="ln"><span>Découvre ce que</span></span><span class="ln"><span>les gens pensent</span></span><span class="ln"><span>vraiment de toi.</span></span></h1>
+        <p class="lead rv" style="--d:4">Partage ton lien Lisolo sur WhatsApp, Facebook ou Instagram. Reçois des messages anonymes et lance des quiz pour tes amis.</p>
+        <div class="cta rv" style="--d:5">
+          <a class="btn w" href="/login#signup">Créer mon lien gratuit<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          <a class="btn g" href="#how">Comment ça marche</a>
+        </div>
+        <button class="inst" id="install" type="button" hidden>Installer l’application</button>
+        <p class="note rv" style="--d:6">Gratuit pour commencer. Sans engagement.</p>
+      </div>
+
+      <div class="stage rv" style="--d:3" aria-hidden="true">
+        <div class="rings"><span></span><span></span><span></span></div>
+        <div class="chip c1"><svg class="ic"><use href="#i-chat"/></svg>Nouveau message anonyme</div>
+        <div class="chip c2"><svg class="ic"><use href="#i-check"/></svg>Un ami a fini ton quiz</div>
+        <div class="phone-wrap">
+          <div class="phone" id="phone">
+            <div class="ph-top"><span class="ph-t">Messages</span><span class="ph-badge">3</span></div>
+            <div class="ph-body">
+              <div class="mb"><span class="av"><svg class="ic"><use href="#i-lock"/></svg></span><div><b>Anonyme</b><p>Ton sourire illumine toute la classe.</p></div></div>
+              <div class="mb m2"><span class="av"><svg class="ic"><use href="#i-lock"/></svg></span><div><b>Anonyme</b><p>Merci pour ton aide hier, vraiment.</p></div></div>
+              <div class="mb m3"><span class="av"><svg class="ic"><use href="#i-lock"/></svg></span><div><b>Anonyme</b><p>Ton dernier quiz était trop dur !</p></div></div>
+              <div class="qz">
+                <div class="qz-h">Quiz : Tu me connais vraiment ?</div>
+                <div class="bar"><i></i></div>
+                <div class="qz-f"><span>Réponses en cours</span><span>Score moyen 7/10</span></div>
+              </div>
+            </div>
+            <div class="ph-nav">
+              <span class="pn on"><svg class="ic"><use href="#i-home"/></svg><span>Accueil</span></span>
+              <span class="pn"><svg class="ic"><use href="#i-quiz"/></svg><span>Quiz</span></span>
+              <span class="pn mid"><span class="pl"><svg class="ic"><use href="#i-plus"/></svg></span></span>
+              <span class="pn"><svg class="ic"><use href="#i-chat"/></svg><span>Messages</span><span class="bd">3</span></span>
+              <span class="pn"><svg class="ic"><use href="#i-user"/></svg><span>Profil</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="how">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kick">Comment ça marche</span>
+        <h2 class="h2">Prêt en moins d’une minute.</h2>
+        <p class="sub2">Trois étapes, et ton lien circule partout où tes amis te suivent.</p>
+      </div>
+      <div class="steps">
+        <article class="step rv" style="--d:0"><div class="num">1</div><h3>Crée ton compte</h3><p>Avec Google ou ton email. Choisis ton pseudo, ton lien est prêt.</p></article>
+        <article class="step rv" style="--d:1"><div class="num">2</div><h3>Partage ton lien</h3><p>Mets-le dans ta bio ou ton statut WhatsApp, Facebook, Instagram ou TikTok.</p></article>
+        <article class="step rv" style="--d:2"><div class="num">3</div><h3>Reçois et découvre</h3><p>Lis les messages anonymes et regarde qui a réussi ton quiz.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec t" id="features">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kick">Fonctions</span>
+        <h2 class="h2">Tout ce qu’il faut, rien de compliqué.</h2>
+      </div>
+      <div class="grid">
+        <article class="fc rv" style="--d:0"><div class="fi"><svg class="ic"><use href="#i-chat"/></svg></div><h3>Messages anonymes</h3><p>Tes amis et ton public t’écrivent sans créer de compte et sans se montrer.</p></article>
+        <article class="fc rv" style="--d:1"><div class="fi"><svg class="ic"><use href="#i-quiz"/></svg></div><h3>Quiz à partager</h3><p>Crée un quiz en une minute et vois qui te connaît vraiment.</p></article>
+        <article class="fc rv" style="--d:2"><div class="fi"><svg class="ic"><use href="#i-link"/></svg></div><h3>Un lien, partout</h3><p>Un seul lien à mettre en bio ou en statut, sur tous tes réseaux.</p></article>
+        <article class="fc rv" style="--d:0"><div class="fi"><svg class="ic"><use href="#i-ban"/></svg></div><h3>Tu gardes le contrôle</h3><p>Supprime un message ou bloque un expéditeur en un geste.</p></article>
+        <article class="fc rv" style="--d:1"><div class="fi"><svg class="ic"><use href="#i-shield"/></svg></div><h3>Protégé contre les abus</h3><p>Limites anti-spam et outils de blocage pour garder un espace sain.</p></article>
+        <article class="fc rv" style="--d:2"><div class="fi"><svg class="ic"><use href="#i-phone"/></svg></div><h3>Pensé pour la RDC</h3><p>En français, léger sur mobile, avec paiement par Mobile Money.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="demo">
+    <div class="wrap demo-g">
+      <div class="rv">
+        <span class="kick">Essaie maintenant</span>
+        <h2 class="h2">Un quiz Lisolo, en direct.</h2>
+        <p class="sub2">Voici ce que vivront tes amis quand ils ouvriront ton lien. Réponds aux trois questions.</p>
+      </div>
+      <div class="demo rv" style="--d:2" id="demo" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="sec t" id="pricing">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kick">Offres</span>
+        <h2 class="h2">Gratuit pour commencer, Premium pour aller plus loin.</h2>
+      </div>
+      <div class="plans">
+        <article class="plan rv" style="--d:0">
+          <div><div class="pname">Gratuit</div><div class="price">0 $</div></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>30 messages anonymes par mois</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>2 quiz actifs</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>10 questions par quiz</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>20 réponses par quiz</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Historique des 7 derniers jours</li>
+          </ul>
+          <a class="btn gh2" href="/login#signup">Commencer gratuitement</a>
+        </article>
+        <article class="plan pro rv" style="--d:1">
+          <span class="tag">Recommandé</span>
+          <div><div class="pname">Premium</div><div class="price">2 $ <small>/ mois</small></div></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>Messages anonymes illimités</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Jusqu’à 100 quiz actifs</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>30 questions par quiz</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Réponses illimitées par quiz</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Historique complet</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Statistiques des participants</li>
+          </ul>
+          <a class="btn pri" href="/login#signup">Passer au Premium</a>
+          <p class="pnote">Paiement par Mobile Money.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="faq">
+    <div class="wrap">
+      <div class="head rv">
+        <span class="kick">FAQ</span>
+        <h2 class="h2">Tes questions, nos réponses.</h2>
+      </div>
+      <div class="faq">
+        <details class="rv" style="--d:0"><summary>Est-ce vraiment anonyme ?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Oui. L’identité de l’expéditeur n’est jamais affichée. Pour limiter les abus, nous gardons une empreinte technique non réversible qui sert uniquement à bloquer un expéditeur.</p></details>
+        <details class="rv" style="--d:1"><summary>Est-ce gratuit ?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Oui pour commencer. L’offre gratuite a des limites mensuelles, que le Premium retire.</p></details>
+        <details class="rv" style="--d:2"><summary>Comment payer le Premium ?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Par Mobile Money, directement dans l’application.</p></details>
+        <details class="rv" style="--d:3"><summary>Puis-je supprimer ou bloquer un message ?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Oui. Chaque message peut être supprimé, et son expéditeur bloqué en un geste.</p></details>
+        <details class="rv" style="--d:4"><summary>Comment installer l’application ?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Sur Android, ouvre Lisolo dans Chrome puis choisis « Installer l’application ». Sur iPhone, dans Safari, touche Partager puis « Sur l’écran d’accueil ».</p></details>
+        <details class="rv" style="--d:5"><summary>Puis-je supprimer mon compte ?<svg class="ic"><use href="#i-chev"/></svg></summary><p>Oui. Tu peux supprimer ton compte et toutes tes données depuis ton profil.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band rv" aria-label="Appel à l’action">
+    <div class="rings" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h2>Ton lien Lisolo t’attend.</h2>
+    <p>Crée ton compte en moins d’une minute et partage ton lien dès aujourd’hui.</p>
+    <a class="btn w" href="/login#signup">Créer mon lien gratuit<svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <a class="brand" href="/" aria-label="Lisolo, accueil"><span class="logo-s" aria-hidden="true"></span><span>Lisolo</span></a>
+    <nav class="fl" aria-label="Liens utiles">
+      <a href="/legal">Conditions d’utilisation</a>
+      <a href="/login">Connexion</a>
+      <a href="/login#signup">Créer un compte</a>
+    </nav>
+    <p class="copy">© <span id="yr">2026</span> Lisolo. Fait en RDC.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var QUIZ = [
+    { q: 'Quelle est la capitale de la RDC ?', o: ['Lubumbashi', 'Kinshasa', 'Goma'], c: 1 },
+    { q: 'Quel grand fleuve traverse le pays ?', o: ['Le fleuve Congo', 'Le Nil', 'Le Niger'], c: 0 },
+    { q: 'En quelle année la RDC est-elle devenue indépendante ?', o: ['1958', '1960', '1965'], c: 1 }
+  ];
+  var VERDICT = ['Tu peux mieux faire. Rejoue !', 'C’est un bon début.', 'Presque parfait.', 'Parfait ! Crée ton propre quiz.'];
+
+  function el(tag, cls, txt) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt !== undefined) n.textContent = txt;
+    return n;
+  }
+
+  function initReveal() {
+    var els = $$('.rv');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (e) { e.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (x) {
+        if (!x.isIntersecting) return;
+        var t = x.target;
+        t.classList.add('in');
+        io.unobserve(t);
+        setTimeout(function () { t.style.setProperty('--d', '0'); }, 1500);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  }
+
+  function ready() {
+    root.classList.remove('chk');
+    root.classList.add('rdy');
+    initReveal();
+  }
+
+  function check() {
+    if (/[?&]home\b/.test(location.search)) return Promise.resolve(false);
+    var ctl = new AbortController();
+    var to = setTimeout(function () { ctl.abort(); }, 2500);
+    return fetch('/api/me', { credentials: 'same-origin', headers: { 'X-Requested-With': 'lisolo' }, signal: ctl.signal })
+      .then(function (r) {
+        clearTimeout(to);
+        if (r.ok) { location.replace('/app'); return true; }
+        return false;
+      })
+      .catch(function () { clearTimeout(to); return false; });
+  }
+
+  check().then(function (redirected) { if (!redirected) ready(); });
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { root.classList.remove('chk'); root.classList.add('rdy'); }
+  });
+
+  var nav = $('#nav');
+  function onScroll() { nav.classList.toggle('solid', window.scrollY > 24); }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var hero = $('.hero');
+  var phone = $('#phone');
+  if (!reduce && phone && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    var raf = 0, tx = 0, ty = 0;
+    hero.addEventListener('pointermove', function (e) {
+      var r = hero.getBoundingClientRect();
+      tx = (e.clientX - r.left) / r.width - 0.5;
+      ty = (e.clientY - r.top) / r.height - 0.5;
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = 0;
+        phone.style.setProperty('--ry', (tx * 14).toFixed(2) + 'deg');
+        phone.style.setProperty('--rx', (-ty * 10).toFixed(2) + 'deg');
+      });
+    });
+    hero.addEventListener('pointerleave', function () {
+      phone.style.setProperty('--ry', '0deg');
+      phone.style.setProperty('--rx', '0deg');
+    });
+  }
+
+  var deferred = null;
+  var ib = $('#install');
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferred = e;
+    ib.hidden = false;
+  });
+  ib.addEventListener('click', function () {
+    if (!deferred) return;
+    deferred.prompt();
+    Promise.resolve(deferred.userChoice).catch(function () {}).then(function () {
+      deferred = null;
+      ib.hidden = true;
+    });
+  });
+  window.addEventListener('appinstalled', function () { ib.hidden = true; });
+
+  var demo = $('#demo');
+  var qi = 0, score = 0, locked = false;
+
+  function render() {
+    demo.textContent = '';
+    if (qi >= QUIZ.length) { result(); return; }
+    var q = QUIZ[qi];
+    var head = el('div', 'dq-h');
+    head.appendChild(el('span', 'dq-n', 'Question ' + (qi + 1) + ' sur ' + QUIZ.length));
+    var dots = el('div', 'dots');
+    QUIZ.forEach(function (_, i) { dots.appendChild(el('span', i < qi ? 'd on' : (i === qi ? 'd cur' : 'd'))); });
+    head.appendChild(dots);
+    demo.appendChild(head);
+    demo.appendChild(el('h3', 'dq-q', q.q));
+    var list = el('div', 'opts');
+    q.o.forEach(function (t, i) {
+      var b = el('button', 'opt');
+      b.type = 'button';
+      b.appendChild(el('span', 'ol', String.fromCharCode(65 + i)));
+      b.appendChild(el('span', 'ot', t));
+      b.addEventListener('click', function () { pick(i, list); });
+      list.appendChild(b);
+    });
+    demo.appendChild(list);
+  }
+
+  function pick(i, list) {
+    if (locked) return;
+    locked = true;
+    var q = QUIZ[qi];
+    Array.prototype.forEach.call(list.children, function (b, k) {
+      b.disabled = true;
+      if (k === q.c) b.classList.add('ok');
+      else if (k === i) b.classList.add('no');
+    });
+    if (i === q.c) score++;
+    setTimeout(function () { qi++; locked = false; render(); }, 1000);
+  }
+
+  function result() {
+    var w = el('div', 'dres');
+    w.appendChild(el('div', 'dscore', score + '/' + QUIZ.length));
+    w.appendChild(el('p', 'dmsg', VERDICT[score]));
+    var a = el('a', 'btn pri', 'Créer mon propre quiz');
+    a.href = '/login#signup';
+    var r = el('button', 'btn gh2', 'Rejouer');
+    r.type = 'button';
+    r.addEventListener('click', function () { qi = 0; score = 0; render(); });
+    w.appendChild(a);
+    w.appendChild(r);
+    demo.appendChild(w);
+  }
+
+  render();
+  $('#yr').textContent = String(new Date().getFullYear());
+})();
+</script>
+</body>
+</html>
