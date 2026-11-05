@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Connexion – Lisolo</title>
+<meta name="theme-color" content="#F85A03">
+<meta name="robots" content="noindex, nofollow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<noscript><style>body:not(.ready) .shell{opacity:1}</style></noscript>
+<style>
+:root{--o:#F85A03;--o2:#D84C00;--o3:#B53E00;--tint:#FFF2EA;--tint2:#FFE3D2;--ink:#1B120D;--mut:#75675F;--line:#EADFD7;--r:14px;--ease:cubic-bezier(.2,.75,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--o);color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+[hidden]{display:none!important}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:var(--o2);font-weight:700}
+.ic{width:22px;height:22px;flex:none}
+
+.shell{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
+@keyframes reveal{to{opacity:1}}
+
+.hero{position:relative;overflow:hidden;background:var(--o);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:56px clamp(32px,6vw,88px)}
+.hero::before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 20% 15%,rgba(255,255,255,.17),transparent 45%),radial-gradient(circle at 85% 90%,rgba(0,0,0,.15),transparent 50%);pointer-events:none}
+.hero-in{position:relative;z-index:2;max-width:520px}
+.mark{position:relative;width:104px;height:104px;display:grid;place-items:center;margin-bottom:36px}
+.mark img{position:relative;z-index:2;width:84px;height:auto;transform-origin:50% 60%}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.55);opacity:0}
+.ready .ring{animation:ring 3s var(--ease) infinite}
+.ring:nth-child(2){animation-delay:1s}
+.ring:nth-child(3){animation-delay:2s}
+@keyframes ring{0%{transform:scale(.7);opacity:.75}100%{transform:scale(2.7);opacity:0}}
+.ready .mark img{animation:beat 3s var(--ease) infinite}
+@keyframes beat{0%,100%{transform:scale(1)}8%{transform:scale(1.09) rotate(-2deg)}16%{transform:scale(.97) rotate(1deg)}26%{transform:scale(1)}}
+.brand{font-size:15px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.92;margin-bottom:14px}
+.hl{font-size:clamp(34px,4.6vw,58px);line-height:1.04;font-weight:800;letter-spacing:-.02em}
+.hl .ln{display:block;overflow:hidden;padding-bottom:.08em}
+.hl .ln>span{display:block;transform:translateY(110%)}
+.ready .hl .ln>span{animation:up .85s var(--ease) forwards}
+.ready .hl .ln:nth-child(2)>span{animation-delay:.14s}
+@keyframes up{to{transform:none}}
+.sub{margin-top:18px;font-size:clamp(15px,1.5vw,18px);line-height:1.5;opacity:0;max-width:420px}
+.ready .sub{animation:fade .8s .5s var(--ease) forwards}
+@keyframes fade{to{opacity:.92}}
+
+.bubbles{display:none}
+@media(min-width:1100px){
+  .bubbles{display:block;position:absolute;inset:0;z-index:1;pointer-events:none}
+  .bub{position:absolute;display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:18px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);opacity:0}
+  .bub i{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.92);flex:none}
+  .bub span{display:block;width:120px}
+  .bub b{display:block;height:8px;border-radius:6px;background:rgba(255,255,255,.88)}
+  .bub b+b{margin-top:7px;width:70%;opacity:.6}
+  .b1{top:9%;right:7%;--d:.5s}
+  .b2{bottom:24%;right:12%;--d:.8s}
+  .b3{bottom:9%;left:9%;--d:1.1s}
+  .ready .bub{animation:bubIn .9s var(--d) var(--ease) forwards,drift 7s calc(var(--d) + .9s) ease-in-out infinite alternate}
+  @keyframes bubIn{to{opacity:1}}
+  @keyframes drift{0%{transform:translateY(0)}100%{transform:translateY(-16px)}}
+}
+
+.panel{background:#fff;display:flex;align-items:center;justify-content:center;padding:40px 32px}
+.card{width:100%;max-width:410px;position:relative}
+.card.is-busy{pointer-events:none}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.ch h2{font-size:26px;font-weight:800;letter-spacing:-.01em}
+.ch p{margin-top:6px;color:var(--mut);font-size:15px;line-height:1.45}
+
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--tint);border-radius:16px;padding:5px;margin:22px 0 20px}
+.tab{position:relative;z-index:2;height:44px;border-radius:12px;font-weight:800;font-size:15px;color:var(--mut);transition:color .25s}
+.tab.on{color:#fff}
+.ind{position:absolute;z-index:1;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:12px;background:var(--o);box-shadow:0 6px 16px rgba(248,90,3,.35);transition:transform .4s var(--ease)}
+
+.msg{border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.4;font-weight:600;background:var(--tint);color:var(--o3);border:1px solid var(--tint2);margin-bottom:14px}
+.msg.info{background:#fff;border-color:var(--o);color:var(--ink)}
+
+.pf{display:flex;flex-direction:column;gap:14px}
+.ready .pf>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0)*55ms)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.fld label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.inp{position:relative}
+.inp input{width:100%;height:52px;border:1.5px solid var(--line);border-radius:var(--r);padding:0 16px;background:#fff;font-size:16px;outline:0;transition:border-color .2s,box-shadow .2s}
+.inp input::placeholder{color:#B5A8A0}
+.inp input:focus{border-color:var(--o);box-shadow:0 0 0 4px rgba(248,90,3,.15)}
+.pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--mut);font-weight:800;pointer-events:none}
+.has-pre input{padding-left:34px}
+.has-eye input{padding-right:52px}
+.eye{position:absolute;right:6px;top:6px;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--mut)}
+.eye:hover{background:var(--tint)}
+.eye .off{display:none}
+.eye.on .off{display:block}
+.eye.on .open{display:none}
+
+.row{display:flex;justify-content:flex-end;margin-top:-4px}
+.lnk{font-size:13px;font-weight:800;color:var(--o2)}
+.lnk:hover{text-decoration:underline}
+
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
+.meter i{height:5px;border-radius:4px;background:var(--line);transition:background .3s}
+.meter[data-level="1"] i:nth-child(-n+1),.meter[data-level="2"] i:nth-child(-n+2),.meter[data-level="3"] i:nth-child(-n+3),.meter[data-level="4"] i:nth-child(-n+4){background:var(--o)}
+.mlabel{font-size:12px;font-weight:700;color:var(--mut);margin-top:6px;min-height:15px}
+
+.check{position:relative;display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--ink);cursor:pointer}
+.check input{position:absolute;opacity:0;width:22px;height:22px}
+.box{flex:none;width:22px;height:22px;border-radius:7px;border:2px solid #CDBFB6;display:grid;place-items:center;transition:background .2s,border-color .2s,transform .2s;margin-top:1px}
+.box svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .3s .05s var(--ease)}
+.check input:checked+.box{background:var(--o);border-color:var(--o);transform:scale(1.06)}
+.check input:checked+.box svg{stroke-dashoffset:0}
+.check input:focus-visible+.box{box-shadow:0 0 0 4px rgba(248,90,3,.25)}
+
+.btn{position:relative;height:54px;border-radius:var(--r);font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s,background .2s,box-shadow .2s,opacity .2s;overflow:hidden;width:100%}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.pri{background:var(--o);color:#fff;box-shadow:0 10px 22px rgba(248,90,3,.32)}
+.pri:hover:not(:disabled){background:var(--o2)}
+.pri:not(:disabled)::before{content:"";position:absolute;top:0;bottom:0;width:60px;left:-80px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.35),transparent);animation:sheen 4.5s 1.2s infinite}
+@keyframes sheen{0%{left:-80px}30%,100%{left:120%}}
+.sec{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.sec:hover:not(:disabled){border-color:var(--o);background:var(--tint)}
+.btn.loading{color:transparent}
+.btn.loading::before{display:none}
+.btn.loading::after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
+.sec.loading::after{border-color:var(--tint2);border-top-color:var(--o)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.or{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:13px;font-weight:700}
+.or::before,.or::after{content:"";height:1px;background:var(--line);flex:1}
+
+.vicon{width:76px;height:76px;border-radius:50%;background:var(--tint);color:var(--o);display:grid;place-items:center;margin:4px auto 2px}
+.vicon .ic{width:34px;height:34px}
+.ready .vicon{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.vt{text-align:center;font-size:22px;font-weight:800}
+.vp{text-align:center;color:var(--mut);font-size:15px;line-height:1.5}
+.vp strong{display:block;color:var(--ink);margin-top:4px;word-break:break-all}
+
+.back{display:inline-block;margin-top:22px;font-size:14px;color:var(--mut);text-decoration:none}
+.back:hover{color:var(--o2)}
+
+.sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:rgba(27,18,13,.55);opacity:0;transition:opacity .25s}
+.sheet.open{opacity:1}
+.sheet-card{width:100%;max-width:440px;background:#fff;border-radius:26px 26px 0 0;padding:26px 22px calc(26px + env(safe-area-inset-bottom));transform:translateY(40px);transition:transform .38s var(--ease);display:flex;flex-direction:column;gap:14px}
+.sheet.open .sheet-card{transform:none}
+.sheet-card h3{font-size:22px;font-weight:800}
+.sheet-card p.d{color:var(--mut);font-size:14.5px;line-height:1.5}
+@media(min-width:600px){.sheet{align-items:center}.sheet-card{border-radius:26px}}
+
+.done{position:fixed;inset:0;z-index:80;background:var(--o);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;transition:opacity .35s}
+.done.on{opacity:1}
+.done svg{width:100px;height:100px}
+.done circle{fill:none;stroke:#fff;stroke-width:4;stroke-dasharray:252;stroke-dashoffset:252}
+.done path{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60}
+.done.on circle{animation:draw .6s .1s var(--ease) forwards}
+.done.on path{animation:draw .4s .55s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.done p{font-size:22px;font-weight:800;opacity:0}
+.done.on p{animation:fadein .4s .8s forwards}
+@keyframes fadein{to{opacity:1}}
+
+@media(max-width:860px){
+  .shell{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .hero{padding:calc(env(safe-area-inset-top) + 28px) 24px 66px;justify-content:flex-start}
+  .mark{width:68px;height:68px;margin-bottom:22px}
+  .mark img{width:54px}
+  .brand{font-size:13px;margin-bottom:10px}
+  .hl{font-size:32px}
+  .sub{display:none}
+  .panel{margin-top:-32px;border-radius:30px 30px 0 0;position:relative;z-index:3;align-items:flex-start;padding:28px 20px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.14)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17.5 17.5 0 0 1-3.2 4.2M6.6 6.6A17.6 17.6 0 0 0 2 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></symbol>
+  <symbol id="i-google" viewBox="0 0 18 18"><path fill="currentColor" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/><path fill="currentColor" d="M9 18c2.43 0 4.4673-.8059 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.8591-3.0477.8591-2.3441 0-4.3282-1.5832-5.0359-3.7105H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z"/><path fill="currentColor" d="M3.9641 10.71c-.18-.54-.2823-1.1168-.2823-1.71s.1023-1.17.2823-1.71V4.9582H.9573A8.9965 8.9965 0 0 0 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.9641 10.71z"/><path fill="currentColor" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.3459l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.9641 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z"/></symbol>
+</svg>
+
+<main class="shell">
+  <section class="hero" aria-hidden="false">
+    <div class="bubbles" aria-hidden="true">
+      <div class="bub b1"><i></i><span><b></b><b></b></span></div>
+      <div class="bub b2"><i></i><span><b></b><b></b></span></div>
+      <div class="bub b3"><i></i><span><b></b><b></b></span></div>
+    </div>
+    <div class="hero-in">
+      <div class="mark">
+        <span class="ring"></span><span class="ring"></span><span class="ring"></span>
+        <img src="/images/lisolo-symbole-blanc.png" alt="Logo Lisolo">
+      </div>
+      <div class="brand">Lisolo</div>
+      <h1 class="hl"><span class="ln"><span>Dis tout.</span></span><span class="ln"><span>Reste anonyme.</span></span></h1>
+      <p class="sub">Messages anonymes et quiz, pensés pour la RDC. Partage ton lien et découvre ce que les gens pensent vraiment.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="card" id="card">
+      <header class="ch">
+        <h2>Ton espace Lisolo</h2>
+        <p>Reçois des messages anonymes et lance tes quiz.</p>
+      </header>
+
+      <div class="tabs" role="tablist">
+        <span class="ind" id="ind"></span>
+        <button class="tab on" type="button" role="tab" data-mode="login" aria-selected="true">Connexion</button>
+        <button class="tab" type="button" role="tab" data-mode="signup" aria-selected="false">Inscription</button>
+      </div>
+
+      <div class="msg" id="notice" hidden></div>
+      <div class="msg" id="msg" role="alert" aria-live="polite" hidden></div>
+
+      <form class="pf" id="loginPanel" role="tabpanel" novalidate>
+        <div class="fld">
+          <label for="liEmail">Email</label>
+          <div class="inp"><input id="liEmail" type="email" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="ton@email.com" maxlength="254"></div>
+        </div>
+        <div class="fld">
+          <label for="liPass">Mot de passe</label>
+          <div class="inp has-eye">
+            <input id="liPass" type="password" autocomplete="current-password" placeholder="Ton mot de passe" maxlength="128">
+            <button class="eye" type="button" data-toggle="liPass" aria-label="Afficher le mot de passe"><svg class="ic open"><use href="#i-eye"/></svg><svg class="ic off"><use href="#i-eye-off"/></svg></button>
+          </div>
+        </div>
+        <div class="row"><button class="lnk" type="button" id="forgot">Mot de passe oublié ?</button></div>
+        <button class="btn pri" type="submit" id="loginBtn">Se connecter</button>
+        <div class="or gwrap"><span>ou</span></div>
+        <button class="btn sec gwrap" type="button" id="googleLogin" disabled><svg class="ic"><use href="#i-google"/></svg>Continuer avec Google</button>
+      </form>
+
+      <form class="pf" id="signupPanel" role="tabpanel" novalidate hidden>
+        <div class="fld">
+          <label for="suPseudo">Pseudo (optionnel)</label>
+          <div class="inp has-pre"><span class="pre">@</span><input id="suPseudo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ton_pseudo" maxlength="20"></div>
+        </div>
+        <div class="fld">
+          <label for="suEmail">Email</label>
+          <div class="inp"><input id="suEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="ton@email.com" maxlength="254"></div>
+        </div>
+        <div class="fld">
+          <label for="suPass">Mot de passe</label>
+          <div class="inp has-eye">
+            <input id="suPass" type="password" autocomplete="new-password" placeholder="8 caractères minimum" maxlength="128">
+            <button class="eye" type="button" data-toggle="suPass" aria-label="Afficher le mot de passe"><svg class="ic open"><use href="#i-eye"/></svg><svg class="ic off"><use href="#i-eye-off"/></svg></button>
+          </div>
+          <div class="meter" id="meter" data-level="0"><i></i><i></i><i></i><i></i></div>
+          <div class="mlabel" id="mlabel"></div>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="terms">
+          <span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          <span>J’accepte les <a href="/legal" target="_blank" rel="noopener">conditions d’utilisation</a> et la <a href="/legal" target="_blank" rel="noopener">politique de confidentialité</a>.</span>
+        </label>
+        <button class="btn pri" type="submit" id="signupBtn" disabled>Créer mon compte</button>
+        <div class="or gwrap"><span>ou</span></div>
+        <button class="btn sec gwrap" type="button" id="googleSignup" disabled><svg class="ic"><use href="#i-google"/></svg>S’inscrire avec Google</button>
+      </form>
+
+      <div class="pf" id="verifyPanel" hidden>
+        <div class="vicon"><svg class="ic"><use href="#i-mail"/></svg></div>
+        <h3 class="vt" id="verifyTitle">Vérifie ta boîte mail</h3>
+        <p class="vp"><span id="verifyText"></span><strong id="verifyEmail"></strong></p>
+        <p class="vp">Pense à regarder dans les spams. Après avoir cliqué sur le lien, reviens ici et connecte-toi.</p>
+        <button class="btn sec" type="button" id="resendBtn">Renvoyer l’email</button>
+        <button class="btn pri" type="button" id="verifyBack">J’ai confirmé, me connecter</button>
+      </div>
+
+      <a class="back" href="/">Retour à l’accueil</a>
+    </div>
+  </section>
+</main>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
+  <div class="sheet-card">
+    <h3 id="shTitle">Dernière étape</h3>
+    <p class="d">Termine la création de ton compte Lisolo.</p>
+    <div class="msg" id="shMsg" role="alert" hidden></div>
+    <div class="fld" id="shPseudoWrap">
+      <label for="shPseudo">Pseudo (optionnel)</label>
+      <div class="inp has-pre"><span class="pre">@</span><input id="shPseudo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ton_pseudo" maxlength="20"></div>
+    </div>
+    <label class="check" id="shTermsWrap">
+      <input type="checkbox" id="shTerms">
+      <span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <span>J’accepte les <a href="/legal" target="_blank" rel="noopener">conditions d’utilisation</a> et la <a href="/legal" target="_blank" rel="noopener">politique de confidentialité</a>.</span>
+    </label>
+    <button class="btn pri" type="button" id="shConfirm">Continuer</button>
+    <button class="btn sec" type="button" id="shCancel">Annuler</button>
+  </div>
+</div>
+
+<div class="done" id="done" hidden>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/><path d="M30 51 L44 64 L70 37"/></svg>
+  <p>Bienvenue sur Lisolo</p>
+</div>
+
+<script type="module">
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PSEUDO_RE = /^[a-z0-9_]{3,20}$/;
+const NEXT_OK = /^\/(?:app|u\/[a-z0-9_]{3,20}|q\/[A-Za-z0-9]{20})$/;
+const FB_VERSION = '10.14.1';
+
+const params = new URLSearchParams(location.search);
+const nextRaw = params.get('next') || '';
+const nextUrl = NEXT_OK.test(nextRaw) ? nextRaw : '/app';
+
+const ua = navigator.userAgent || '';
+const embedded = /FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|Snapchat|TikTok|musical_ly|MicroMessenger|; wv\)/i.test(ua);
+const iosStandalone = window.navigator.standalone === true;
+const googleBlocked = embedded || iosStandalone;
+
+const deviceId = (() => {
+  try {
+    let d = localStorage.getItem('lisolo_dev');
+    if (!d) {
+      d = (window.crypto && crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '') : String(Math.random()).slice(2) + Date.now());
+      localStorage.setItem('lisolo_dev', d);
+    }
+    return d;
+  } catch (e) {
+    return '';
+  }
+})();
+
+const TEXT = {
+  'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+  'auth/invalid-login-credentials': 'Email ou mot de passe incorrect.',
+  'auth/user-not-found': 'Email ou mot de passe incorrect.',
+  'auth/wrong-password': 'Email ou mot de passe incorrect.',
+  'auth/email-already-in-use': 'Cet email est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.',
+  'auth/weak-password': 'Mot de passe trop faible. Utilise au moins 8 caractères.',
+  'auth/invalid-email': 'Adresse email invalide.',
+  'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
+  'auth/network-request-failed': 'Pas de connexion internet. Vérifie ton réseau.',
+  'auth/popup-blocked': 'Le navigateur a bloqué la fenêtre Google. Autorise les popups puis réessaie.',
+  'auth/account-exists-with-different-credential': 'Un compte existe déjà avec cet email. Connecte-toi avec ta méthode d’origine.',
+  'auth/user-disabled': 'Ce compte est désactivé.',
+  'auth/unauthorized-domain': 'Ce domaine n’est pas autorisé pour la connexion.',
+  'auth/operation-not-allowed': 'Cette méthode de connexion n’est pas activée.',
+  terms_required: 'Tu dois accepter les conditions pour créer un compte.',
+  email_not_verified: 'Vérifie ton email avant de te connecter.',
+  recent_login_required: 'Session expirée. Reconnecte-toi.',
+  banned: 'Ce compte a été suspendu.',
+  username_taken: 'Ce pseudo est déjà pris. Choisis-en un autre.',
+  username_invalid: 'Pseudo invalide : 3 à 20 caractères, minuscules, chiffres et _.',
+  too_many_requests: 'Trop de requêtes. Réessaie dans quelques minutes.',
+  forbidden: 'Requête refusée. Recharge la page.',
+  invalid_token: 'Connexion invalide. Réessaie.',
+  config_missing: 'Configuration manquante côté serveur.',
+};
+const explain = (e) => TEXT[(e && (e.code || e.message)) || ''] || 'Une erreur est survenue. Réessaie.';
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    method: opts.method || 'GET',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'lisolo', 'X-Device-Id': deviceId },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  let data = null;
+  try {
+    data = await res.json();
+  } catch (e) {
+    data = null;
+  }
+  if (!res.ok) {
+    const err = new Error((data && data.error) || 'server_error');
+    err.code = (data && data.error) || 'server_error';
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+const card = $('#card');
+const msgEl = $('#msg');
+const sheet = $('#sheet');
+let mode = 'login';
+let busy = false;
+let fb = null;
+let termsVersion = '1';
+let sheetState = null;
+let cdTimer = null;
+
+function showMsg(text, kind) {
+  msgEl.textContent = text;
+  msgEl.className = 'msg' + (kind === 'info' ? ' info' : '');
+  msgEl.hidden = false;
+  if (kind !== 'info') {
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+}
+function clearMsg() {
+  msgEl.hidden = true;
+  msgEl.textContent = '';
+}
+function setSheetMsg(text) {
+  const el = $('#shMsg');
+  el.textContent = text || '';
+  el.hidden = !text;
+}
+
+function syncGates() {
+  const ok = $('#terms').checked;
+  $('#loginBtn').disabled = busy;
+  $('#signupBtn').disabled = !ok || busy;
+  $('#googleLogin').disabled = !fb || busy;
+  $('#googleSignup').disabled = !ok || !fb || busy;
+}
+
+async function run(btn, fn) {
+  busy = true;
+  if (btn) btn.classList.add('loading');
+  card.classList.add('is-busy');
+  syncGates();
+  try {
+    await fn();
+  } catch (e) {
+    handleError(e);
+  } finally {
+    busy = false;
+    if (btn) btn.classList.remove('loading');
+    card.classList.remove('is-busy');
+    syncGates();
+  }
+}
+
+function handleError(e) {
+  const c = e && e.code;
+  if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return;
+  if (c === 'recent_login_required' || c === 'invalid_token') signOutSafe();
+  showMsg(explain(e));
+}
+
+async function signOutSafe() {
+  try {
+    if (fb) await fb.m.signOut(fb.auth);
+  } catch (e) {}
+}
+
+function showPanel(id) {
+  $$('.pf').forEach((p) => {
+    const on = p.id === id;
+    p.hidden = !on;
+    if (on) Array.from(p.children).forEach((c, i) => c.style.setProperty('--i', i));
+  });
+  $('.tabs').hidden = id === 'verifyPanel';
+  clearMsg();
+}
+
+function setMode(m) {
+  mode = m;
+  $('#ind').style.transform = m === 'login' ? 'translateX(0)' : 'translateX(100%)';
+  $$('.tab').forEach((t) => {
+    const on = t.dataset.mode === m;
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-selected', String(on));
+  });
+  showPanel(m === 'login' ? 'loginPanel' : 'signupPanel');
+  history.replaceState(null, '', location.pathname + location.search + (m === 'signup' ? '#signup' : ''));
+}
+
+function startCooldown(sec) {
+  const b = $('#resendBtn');
+  let left = sec;
+  clearInterval(cdTimer);
+  b.disabled = true;
+  const tick = () => {
+    if (left <= 0) {
+      clearInterval(cdTimer);
+      b.disabled = false;
+      b.textContent = 'Renvoyer l’email';
+      return;
+    }
+    b.textContent = 'Renvoyer l’email (' + left + ' s)';
+    left -= 1;
+  };
+  tick();
+  cdTimer = setInterval(tick, 1000);
+}
+
+function showVerify(email, justSent) {
+  $('#verifyEmail').textContent = email;
+  $('#verifyTitle').textContent = justSent ? 'Vérifie ta boîte mail' : 'Email non vérifié';
+  $('#verifyText').textContent = justSent ? 'Nous venons d’envoyer un lien de confirmation à ' : 'Confirme ton adresse avec le lien reçu par email : ';
+  showPanel('verifyPanel');
+  if (justSent) {
+    startCooldown(60);
+  } else {
+    clearInterval(cdTimer);
+    const b = $('#resendBtn');
+    b.disabled = false;
+    b.textContent = 'Renvoyer l’email';
+  }
+}
+
+function readConsent() {
+  try {
+    return JSON.parse(localStorage.getItem('lisolo_signup') || 'null');
+  } catch (e) {
+    return null;
+  }
+}
+function saveConsent(email, pseudo) {
+  try {
+    localStorage.setItem('lisolo_signup', JSON.stringify({ e: email, u: pseudo || '', t: termsVersion }));
+  } catch (e) {}
+}
+function clearConsent() {
+  try {
+    localStorage.removeItem('lisolo_signup');
+  } catch (e) {}
+}
+function consentFor(email) {
+  const c = readConsent();
+  if (c && c.e === email && c.t === termsVersion) return { acceptTerms: true, username: c.u || undefined };
+  return { acceptTerms: false };
+}
+
+const normPseudo = (v) => String(v || '').trim().toLowerCase().replace(/^@/, '');
+
+function celebrate() {
+  const o = $('#done');
+  o.hidden = false;
+  requestAnimationFrame(() => o.classList.add('on'));
+  setTimeout(() => location.replace(nextUrl), 1150);
+}
+
+async function finishSession(input) {
+  const user = fb.auth.currentUser;
+  if (!user) {
+    const e = new Error('invalid_token');
+    e.code = 'invalid_token';
+    throw e;
+  }
+  if (!user.emailVerified) {
+    showVerify(user.email || '', false);
+    return;
+  }
+  const idToken = await user.getIdToken();
+  try {
+    await api('/api/auth/session', {
+      method: 'POST',
+      body: { idToken, acceptTerms: !!input.acceptTerms, username: input.username },
+    });
+  } catch (e) {
+    if (e.code === 'terms_required') {
+      openSheet({ needTerms: true, needPseudo: true, error: '' });
+      return;
+    }
+    if (e.code === 'username_taken' || e.code === 'username_invalid') {
+      openSheet({ needTerms: false, needPseudo: true, error: explain(e) });
+      return;
+    }
+    throw e;
+  }
+  clearConsent();
+  await signOutSafe();
+  celebrate();
+}
+
+function openSheet(o) {
+  sheetState = o;
+  $('#shPseudoWrap').hidden = !o.needPseudo;
+  $('#shTermsWrap').hidden = !o.needTerms;
+  $('#shTerms').checked = false;
+  $('#shPseudo').value = '';
+  setSheetMsg(o.error);
+  sheet.hidden = false;
+  requestAnimationFrame(() => {
+    sheet.classList.add('open');
+    const first = o.needPseudo ? $('#shPseudo') : $('#shTerms');
+    setTimeout(() => first.focus({ preventScroll: true }), 250);
+  });
+}
+function closeSheet() {
+  sheet.classList.remove('open');
+  setTimeout(() => {
+    sheet.hidden = true;
+  }, 260);
+}
+
+async function cancelSheet() {
+  if (busy) return;
+  busy = true;
+  try {
+    const u = fb && fb.auth.currentUser;
+    if (u) {
+      const t = await u.getIdToken();
+      await api('/api/auth/cancel', { method: 'POST', body: { idToken: t } }).catch(() => {});
+    }
+  } catch (e) {}
+  await signOutSafe();
+  busy = false;
+  syncGates();
+  closeSheet();
+  showMsg('Inscription annulée. Aucun compte n’a été créé.', 'info');
+}
+
+async function confirmSheet() {
+  if (busy || !sheetState) return;
+  const s = sheetState;
+  const pseudo = normPseudo($('#shPseudo').value);
+  if (s.needTerms && !$('#shTerms').checked) return setSheetMsg(TEXT.terms_required);
+  if (s.needPseudo && pseudo && !PSEUDO_RE.test(pseudo)) return setSheetMsg(TEXT.username_invalid);
+  const btn = $('#shConfirm');
+  busy = true;
+  btn.classList.add('loading');
+  syncGates();
+  try {
+    const user = fb && fb.auth.currentUser;
+    if (!user) {
+      const e = new Error('invalid_token');
+      e.code = 'invalid_token';
+      throw e;
+    }
+    const idToken = await user.getIdToken();
+    await api('/api/auth/session', {
+      method: 'POST',
+      body: { idToken, acceptTerms: true, username: pseudo || undefined },
+    });
+    closeSheet();
+    clearConsent();
+    await signOutSafe();
+    celebrate();
+  } catch (e) {
+    if (e.code === 'recent_login_required' || e.code === 'invalid_token') {
+      closeSheet();
+      await signOutSafe();
+      showMsg(explain(e));
+    } else {
+      setSheetMsg(explain(e));
+    }
+  } finally {
+    busy = false;
+    btn.classList.remove('loading');
+    syncGates();
+  }
+}
+
+async function onLogin(ev) {
+  ev.preventDefault();
+  if (busy) return;
+  clearMsg();
+  const email = $('#liEmail').value.trim().toLowerCase();
+  const pass = $('#liPass').value;
+  if (!EMAIL_RE.test(email)) return showMsg(TEXT['auth/invalid-email']);
+  if (!pass) return showMsg('Entre ton mot de passe.');
+  if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
+  await run($('#loginBtn'), async () => {
+    const cred = await fb.m.signInWithEmailAndPassword(fb.auth, email, pass);
+    if (!cred.user.emailVerified) {
+      showVerify(email, false);
+      return;
+    }
+    await finishSession(consentFor(email));
+  });
+}
+
+async function onSignup(ev) {
+  ev.preventDefault();
+  if (busy) return;
+  clearMsg();
+  if (!$('#terms').checked) return showMsg(TEXT.terms_required);
+  const email = $('#suEmail').value.trim().toLowerCase();
+  const pass = $('#suPass').value;
+  const pseudo = normPseudo($('#suPseudo').value);
+  if (!EMAIL_RE.test(email)) return showMsg(TEXT['auth/invalid-email']);
+  if (pass.length < 8 || pass.length > 128) return showMsg('Le mot de passe doit contenir au moins 8 caractères.');
+  if (pseudo && !PSEUDO_RE.test(pseudo)) return showMsg(TEXT.username_invalid);
+  if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
+  await run($('#signupBtn'), async () => {
+    const cred = await fb.m.createUserWithEmailAndPassword(fb.auth, email, pass);
+    saveConsent(email, pseudo);
+    try {
+      await fb.m.sendEmailVerification(cred.user);
+    } catch (e) {
+      showVerify(email, false);
+      showMsg('Compte créé, mais l’email n’a pas pu être envoyé. Utilise « Renvoyer l’email ».');
+      return;
+    }
+    showVerify(email, true);
+  });
+}
+
+function onGoogle(fromSignup) {
+  if (busy || !fb) return;
+  clearMsg();
+  if (fromSignup) {
+    if (!$('#terms').checked) return showMsg(TEXT.terms_required);
+    const p = normPseudo($('#suPseudo').value);
+    if (p && !PSEUDO_RE.test(p)) return showMsg(TEXT.username_invalid);
+  }
+  const provider = new fb.m.GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  run(fromSignup ? $('#googleSignup') : $('#googleLogin'), async () => {
+    const cred = await fb.m.signInWithPopup(fb.auth, provider);
+    const email = String(cred.user.email || '').toLowerCase();
+    const input = fromSignup
+      ? { acceptTerms: true, username: normPseudo($('#suPseudo').value) || undefined }
+      : consentFor(email);
+    await finishSession(input);
+  });
+}
+
+async function initFirebase(cfg) {
+  const f = cfg.firebase;
+  if (!f || !f.apiKey || !f.authDomain || !f.appId) {
+    const e = new Error('config_missing');
+    e.code = 'config_missing';
+    throw e;
+  }
+  const base = 'https://www.gstatic.com/firebasejs/' + FB_VERSION + '/';
+  const [a, m] = await Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js')]);
+  const app = a.initializeApp(f);
+  const auth = m.getAuth(app);
+  await m.setPersistence(auth, m.inMemoryPersistence);
+  auth.languageCode = 'fr';
+  fb = { auth, m };
+}
+
+function strength(p) {
+  let s = 0;
+  if (p.length >= 8) s++;
+  if (p.length >= 12) s++;
+  if (/[a-zA-Z]/.test(p) && /\d/.test(p)) s++;
+  if (/[^A-Za-z0-9]/.test(p) || (/[a-z]/.test(p) && /[A-Z]/.test(p))) s++;
+  return p.length === 0 ? 0 : Math.max(1, Math.min(4, s));
+}
+
+$$('.tab').forEach((t) => t.addEventListener('click', () => {
+  if (!busy) setMode(t.dataset.mode);
+}));
+
+$$('[data-toggle]').forEach((b) => b.addEventListener('click', () => {
+  const i = document.getElementById(b.dataset.toggle);
+  const show = i.type === 'password';
+  i.type = show ? 'text' : 'password';
+  b.classList.toggle('on', show);
+  b.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+}));
+
+['#suPseudo', '#shPseudo'].forEach((sel) => $(sel).addEventListener('input', (e) => {
+  const v = e.target.value.toLowerCase().replace(/^@/, '').replace(/[^a-z0-9_]/g, '').slice(0, 20);
+  if (v !== e.target.value) e.target.value = v;
+}));
+
+$('#suPass').addEventListener('input', (e) => {
+  const l = strength(e.target.value);
+  $('#meter').dataset.level = String(l);
+  $('#mlabel').textContent = ['', 'Faible', 'Moyen', 'Bon', 'Fort'][l];
+});
+
+$('#terms').addEventListener('change', () => {
+  clearMsg();
+  syncGates();
+});
+
+$('#loginPanel').addEventListener('submit', onLogin);
+$('#signupPanel').addEventListener('submit', onSignup);
+$('#googleLogin').addEventListener('click', () => onGoogle(false));
+$('#googleSignup').addEventListener('click', () => onGoogle(true));
+$('#shConfirm').addEventListener('click', confirmSheet);
+$('#shCancel').addEventListener('click', cancelSheet);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !sheet.hidden) cancelSheet();
+});
+
+$('#forgot').addEventListener('click', async () => {
+  if (busy) return;
+  clearMsg();
+  const email = $('#liEmail').value.trim().toLowerCase();
+  if (!EMAIL_RE.test(email)) return showMsg('Entre ton email ci-dessus, puis clique sur « Mot de passe oublié ».');
+  if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
+  await run(null, async () => {
+    try {
+      await fb.m.sendPasswordResetEmail(fb.auth, email);
+    } catch (e) {
+      if (e.code === 'auth/too-many-requests' || e.code === 'auth/network-request-failed') throw e;
+    }
+    showMsg('Si un compte existe pour cet email, un lien de réinitialisation vient d’être envoyé.', 'info');
+  });
+});
+
+$('#resendBtn').addEventListener('click', async () => {
+  if (busy) return;
+  const u = fb && fb.auth.currentUser;
+  if (!u) {
+    setMode('login');
+    return showMsg('Reconnecte-toi pour renvoyer l’email de confirmation.', 'info');
+  }
+  await run($('#resendBtn'), async () => {
+    await fb.m.sendEmailVerification(u);
+    showMsg('Email renvoyé. Vérifie aussi tes spams.', 'info');
+    startCooldown(60);
+  });
+});
+
+$('#verifyBack').addEventListener('click', async () => {
+  if (busy) return;
+  const email = $('#verifyEmail').textContent;
+  await signOutSafe();
+  setMode('login');
+  $('#liEmail').value = email;
+  $('#liPass').focus();
+});
+
+(async function init() {
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), 2500);
+  try {
+    const r = await fetch('/api/me', { credentials: 'same-origin', headers: { 'X-Requested-With': 'lisolo' }, signal: ctl.signal });
+    if (r.ok) {
+      location.replace(nextUrl);
+      return;
+    }
+  } catch (e) {}
+  clearTimeout(to);
+  document.body.classList.add('ready');
+  setMode(location.hash === '#signup' ? 'signup' : 'login');
+  if (googleBlocked) {
+    $$('.gwrap').forEach((el) => {
+      el.hidden = true;
+    });
+    const n = $('#notice');
+    n.textContent = embedded
+      ? 'Ce navigateur intégré bloque la connexion Google. Utilise ton email, ou ouvre ce lien dans Chrome ou Safari.'
+      : 'Sur l’application installée sur iPhone, connecte-toi avec ton email et ton mot de passe.';
+    n.className = 'msg info';
+    n.hidden = false;
+  }
+  try {
+    const cfg = await api('/api/config');
+    termsVersion = String(cfg.termsVersion || '1');
+    await initFirebase(cfg);
+  } catch (e) {
+    showMsg(e && e.code === 'config_missing' ? TEXT.config_missing : 'Impossible de charger la connexion. Vérifie ton internet puis recharge la page.');
+  }
+  syncGates();
+})();
+</script>
+</body>
+</html>
