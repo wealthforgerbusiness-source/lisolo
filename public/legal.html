@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conditions d’utilisation et confidentialité – Lisolo</title>
+<meta name="description" content="Conditions d’utilisation et politique de confidentialité de Lisolo, plateforme de messages anonymes et de quiz.">
+<meta name="theme-color" content="#F85A03">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+<noscript><style>.doc[hidden]{display:block!important}.tabs{display:none!important}</style></noscript>
+<style>
+:root{--o:#F85A03;--o2:#D84C00;--o3:#B53E00;--tint:#FFF2EA;--tint2:#FFE3D2;--ink:#1B120D;--mut:#6F615A;--line:#EADFD7;--ease:cubic-bezier(.2,.75,.2,1);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#fff;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;line-height:1.6;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+[hidden]{display:none!important}
+a{color:var(--o2);font-weight:700}
+.ic{width:22px;height:22px;flex:none;display:block}
+:focus-visible{outline:3px solid var(--o3);outline-offset:2px;border-radius:8px}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes ring{0%{transform:scale(.7);opacity:.55}100%{transform:scale(2.6);opacity:0}}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.1) rotate(-3deg)}30%{transform:scale(.97)}45%{transform:scale(1)}}
+
+.hero{position:relative;overflow:hidden;background:linear-gradient(150deg,var(--o),var(--o2));color:#fff;padding:calc(var(--st) + 18px) 20px 84px;border-radius:0 0 36px 36px}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 12% 10%,rgba(255,255,255,.2),transparent 45%),radial-gradient(circle at 92% 95%,rgba(0,0,0,.16),transparent 50%)}
+.rg{position:absolute;right:-60px;top:-50px;width:220px;height:220px;pointer-events:none}
+.rg i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.5);opacity:0;animation:ring 5s var(--ease) infinite}
+.rg i:nth-child(2){animation-delay:1.6s}
+.rg i:nth-child(3){animation-delay:3.2s}
+.hin{position:relative;z-index:2;max-width:1040px;margin:0 auto}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.back{display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;text-decoration:none;font-weight:800;font-size:14.5px;transition:background .2s}
+.back:hover{background:rgba(255,255,255,.3)}
+.back .ic{width:18px;height:18px}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;color:#fff;text-decoration:none}
+.logo-s{display:block;width:30px;height:28px;background:#fff;-webkit-mask:url(/images/lisolo-symbole-blanc.png) center/contain no-repeat;mask:url(/images/lisolo-symbole-blanc.png) center/contain no-repeat;animation:beat 4s var(--ease) infinite}
+.hero h1{font-size:clamp(30px,6vw,52px);line-height:1.08;font-weight:800;letter-spacing:-.02em;margin-top:34px;max-width:720px;animation:rise .7s var(--ease) both}
+.hero p.l{margin-top:12px;font-size:clamp(15.5px,2vw,18px);max-width:560px;font-weight:500;opacity:.95;animation:rise .7s .1s var(--ease) both}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;animation:rise .7s .2s var(--ease) both}
+.pill{display:inline-flex;align-items:center;font-size:13px;font-weight:800;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4)}
+
+.main{max-width:1040px;margin:-48px auto 0;padding:0 16px calc(48px + var(--sb));position:relative;z-index:3}
+.brief{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:820px){.brief{grid-template-columns:repeat(4,1fr);gap:14px}}
+.bf{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 14px 30px rgba(27,18,13,.08);transition:transform .25s var(--ease),border-color .25s}
+.bf:hover{transform:translateY(-4px);border-color:var(--o)}
+.bf .bi{width:42px;height:42px;border-radius:13px;background:var(--tint);color:var(--o);display:grid;place-items:center;margin-bottom:10px}
+.bf b{display:block;font-size:15px;line-height:1.25}
+.bf span{display:block;font-size:13px;color:var(--mut);font-weight:600;margin-top:4px;line-height:1.4}
+
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--tint);border-radius:18px;padding:5px;margin:26px 0 22px;max-width:560px}
+.tab{position:relative;z-index:2;height:48px;border-radius:13px;font-weight:800;font-size:15px;color:var(--mut);transition:color .25s}
+.tab.on{color:#fff}
+.ind{position:absolute;z-index:1;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:13px;background:var(--o);box-shadow:0 8px 18px rgba(248,90,3,.32);transition:transform .45s var(--ease)}
+
+.layout{display:grid;gap:18px}
+@media(min-width:960px){.layout{grid-template-columns:250px minmax(0,1fr);gap:34px;align-items:start}}
+.toc{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none;position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);padding-top:calc(var(--st) + 8px)}
+.toc::-webkit-scrollbar{display:none}
+.toc a{flex:none;text-decoration:none;font-size:13.5px;font-weight:800;color:var(--o3);background:var(--tint);padding:8px 14px;border-radius:999px;transition:background .2s,color .2s}
+.toc a.on{background:var(--o);color:#fff}
+@media(min-width:960px){
+  .toc{flex-direction:column;overflow:visible;margin:0;padding:18px;top:20px;background:#fff;border:1.5px solid var(--line);border-radius:22px;gap:2px;-webkit-backdrop-filter:none;backdrop-filter:none}
+  .toc::before{content:"Sommaire";font-size:12.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding:0 12px 8px}
+  .toc a{background:transparent;border-radius:12px;padding:9px 12px;font-size:14.5px;color:var(--mut);position:relative}
+  .toc a:hover{background:var(--tint);color:var(--o3)}
+  .toc a.on{background:var(--tint);color:var(--o3)}
+  .toc a.on::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--o)}
+}
+
+.doc{animation:rise .5s var(--ease) both}
+.doc>h2.dt{font-size:clamp(26px,4vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:6px}
+.doc>p.dn{color:var(--mut);font-weight:600;margin-bottom:22px}
+.sec{background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:22px 20px;margin-bottom:14px;scroll-margin-top:84px}
+html.rdy .sec:not(.in){opacity:0;transform:translateY(24px)}
+.sec{transition:opacity .6s var(--ease),transform .6s var(--ease),border-color .3s}
+.sec:target{border-color:var(--o)}
+.sec h3{display:flex;align-items:center;gap:12px;font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.25;margin-bottom:12px}
+.sec h3 .n{flex:none;width:34px;height:34px;border-radius:11px;background:var(--o);color:#fff;font-size:15px;display:grid;place-items:center}
+.sec p{margin:0 0 10px;color:#3A2E28;font-size:16px}
+.sec p:last-child{margin-bottom:0}
+.sec ul{margin:6px 0 10px;display:grid;gap:8px;list-style:none}
+.sec li{position:relative;padding-left:26px;color:#3A2E28;font-size:16px}
+.sec li::before{content:"";position:absolute;left:4px;top:.62em;width:9px;height:9px;border-radius:50%;background:var(--o)}
+.sec strong{color:var(--ink)}
+.note{background:var(--tint);border:1px solid var(--tint2);border-radius:16px;padding:12px 14px;font-weight:600;font-size:15px;color:var(--o3);margin-top:10px}
+.cmp{display:grid;gap:12px;margin:10px 0}
+@media(min-width:640px){.cmp{grid-template-columns:1fr 1fr}}
+.pl{border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
+.pl.pro{border-color:var(--o);background:var(--tint)}
+.pl b{display:block;margin-bottom:6px;font-size:16px}
+.pl ul{margin:0}
+.pl li{font-size:15px}
+.foot{margin-top:30px;text-align:center;color:var(--mut);font-weight:600;font-size:14px}
+.foot a{margin:0 8px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important;transition-delay:0s!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 8.4-8 9-4.6-.6-8-4-8-9V6l8-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
+  </defs>
+</svg>
+
+<header class="hero">
+  <span class="rg" aria-hidden="true"><i></i><i></i><i></i></span>
+  <div class="hin">
+    <div class="hbar">
+      <a class="back" id="back" href="/"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>Retour</a>
+      <a class="brand" href="/" aria-label="Lisolo, accueil"><span class="logo-s" aria-hidden="true"></span>Lisolo</a>
+    </div>
+    <h1>Tes droits et nos règles, en clair.</h1>
+    <p class="l">Voici les conditions d’utilisation de Lisolo et la manière dont nous protégeons tes données.</p>
+    <div class="meta"><span class="pill">Mise à jour : 6 novembre 2026</span><span class="pill" id="ver" hidden></span></div>
+  </div>
+</header>
+
+<main class="main">
+  <section class="brief" aria-label="L’essentiel">
+    <div class="bf"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></div><b>Anonymat protégé</b><span>Le destinataire ne voit jamais qui lui écrit.</span></div>
+    <div class="bf"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg></div><b>Pas de revente</b><span>Nous ne vendons pas tes données.</span></div>
+    <div class="bf"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></div><b>Tout supprimer</b><span>Tu peux effacer ton compte depuis ton profil.</span></div>
+    <div class="bf"><div class="bi"><svg class="ic" aria-hidden="true"><use href="#i-ban"/></svg></div><b>Zéro harcèlement</b><span>Menaces et insultes sont interdites.</span></div>
+  </section>
+
+  <nav class="tabs" id="tabs" aria-label="Documents">
+    <span class="ind" id="ind"></span>
+    <button class="tab on" type="button" data-doc="conditions">Conditions d’utilisation</button>
+    <button class="tab" type="button" data-doc="confidentialite">Confidentialité</button>
+  </nav>
+
+  <div class="layout">
+    <nav class="toc" id="toc" aria-label="Sommaire"></nav>
+
+    <div>
+      <article class="doc" id="conditions">
+        <h2 class="dt">Conditions d’utilisation</h2>
+        <p class="dn">En utilisant Lisolo, tu acceptes ces règles. Lis-les, elles sont courtes.</p>
+
+        <section class="sec" id="c-objet">
+          <h3><span class="n">1</span>Objet</h3>
+          <p>Lisolo est un service en ligne, installable comme une application, qui permet de <strong>recevoir des messages anonymes</strong> et de <strong>créer des quiz</strong> à partager. Il est édité par <strong>OptiSite Digital</strong>, à Kinshasa, en République démocratique du Congo.</p>
+          <p>En créant un compte ou en utilisant Lisolo, tu acceptes les présentes conditions et la politique de confidentialité.</p>
+        </section>
+
+        <section class="sec" id="c-age">
+          <h3><span class="n">2</span>Qui peut utiliser Lisolo</h3>
+          <p>Tu dois avoir <strong>au moins 13 ans</strong>. Si tu as moins de 18 ans, tu confirmes avoir l’accord d’un parent ou d’un tuteur pour utiliser le service.</p>
+        </section>
+
+        <section class="sec" id="c-compte">
+          <h3><span class="n">3</span>Ton compte</h3>
+          <ul>
+            <li>Tu peux t’inscrire avec <strong>Google</strong> ou avec un <strong>email et un mot de passe</strong>. L’adresse email doit être vérifiée.</li>
+            <li>Tu es responsable de tes identifiants et de tout ce qui se passe depuis ton compte. Un compte est personnel.</li>
+            <li>Ton pseudo doit être unique, ne pas usurper l’identité de quelqu’un et ne pas être offensant. Tu peux le modifier une fois tous les 30 jours.</li>
+            <li>Tu nous donnes des informations exactes et tu les gardes à jour.</li>
+          </ul>
+        </section>
+
+        <section class="sec" id="c-service">
+          <h3><span class="n">4</span>Messages anonymes et quiz</h3>
+          <p>Quand tu partages ton lien, toute personne qui l’ouvre peut t’écrire sans créer de compte. Tu ne vois jamais l’identité de l’expéditeur, et ceux à qui tu écris ne savent pas que c’est toi. Un message contient au maximum 500 caractères.</p>
+          <p>Tu peux supprimer un message ou bloquer un expéditeur à tout moment. Les quiz que tu crées sont accessibles à toute personne qui a le lien. Les participants saisissent un prénom ou un pseudo et obtiennent un score.</p>
+          <div class="note">L’anonymat protège les gens de la gêne, pas de la loi : il ne permet jamais de blesser quelqu’un.</div>
+        </section>
+
+        <section class="sec" id="c-regles">
+          <h3><span class="n">5</span>Ce qui est interdit</h3>
+          <p>Il est interdit d’envoyer ou de publier sur Lisolo :</p>
+          <ul>
+            <li>des menaces, du harcèlement, de l’intimidation ou du chantage ;</li>
+            <li>des insultes, des propos haineux ou discriminatoires ;</li>
+            <li>tout contenu sexuel impliquant un mineur, et tout contenu sexuel non désiré ;</li>
+            <li>des informations privées sur quelqu’un sans son accord (adresse, numéro, photos) ;</li>
+            <li>des escroqueries, de l’usurpation d’identité ou de fausses informations dangereuses ;</li>
+            <li>du spam, de la publicité non sollicitée, ou toute tentative de contourner les limites et la sécurité du service ;</li>
+            <li>tout contenu contraire à la loi.</li>
+          </ul>
+        </section>
+
+        <section class="sec" id="c-offres">
+          <h3><span class="n">6</span>Offres Gratuit et Premium</h3>
+          <p>Lisolo est gratuit pour commencer, avec des limites. L’offre Premium les augmente ou les retire. Ces limites peuvent évoluer, et la version en vigueur est celle affichée dans l’application.</p>
+          <div class="cmp">
+            <div class="pl"><b>Gratuit</b><ul><li>30 messages reçus par mois</li><li>2 quiz actifs, 10 questions chacun</li><li>20 réponses par quiz</li><li>Historique des 7 derniers jours</li></ul></div>
+            <div class="pl pro"><b>Premium</b><ul><li>Messages illimités</li><li>Jusqu’à 100 quiz actifs, 30 questions chacun</li><li>Réponses illimitées</li><li>Historique complet et statistiques des participants</li></ul></div>
+          </div>
+          <p>Le prix du Premium est affiché dans l’application avant le paiement. Le paiement se fait par <strong>Mobile Money</strong> via notre prestataire de paiement SasPay. Le Premium est acheté pour une durée déterminée annoncée au moment du paiement. Sauf indication contraire affichée à ce moment-là, il ne se renouvelle pas automatiquement.</p>
+          <p>Les paiements ne sont pas remboursables, sauf erreur technique de notre part ou obligation légale. Si un paiement est débité mais que le Premium n’est pas activé, contacte-nous : nous corrigerons la situation.</p>
+        </section>
+
+        <section class="sec" id="c-moderation">
+          <h3><span class="n">7</span>Modération et sanctions</h3>
+          <p>Nous pouvons supprimer un contenu, limiter ou suspendre un compte, parfois sans préavis, en cas de non-respect de ces règles. Tu peux nous signaler un abus en nous contactant.</p>
+          <p>En cas d’infraction grave ou de demande légale d’une autorité compétente, nous pouvons coopérer dans la mesure permise par la loi, avec les informations techniques limitées dont nous disposons (voir la politique de confidentialité).</p>
+        </section>
+
+        <section class="sec" id="c-pi">
+          <h3><span class="n">8</span>Tes contenus et notre marque</h3>
+          <p>Tu restes propriétaire de ce que tu crées (quiz, textes). Tu nous accordes le droit gratuit et limité de les héberger et de les afficher pour faire fonctionner Lisolo.</p>
+          <p>Le nom Lisolo, le logo et l’application nous appartiennent. Tu ne peux pas les copier ou les utiliser pour te présenter comme nous.</p>
+        </section>
+
+        <section class="sec" id="c-responsabilite">
+          <h3><span class="n">9</span>Disponibilité et responsabilité</h3>
+          <p>Nous faisons de notre mieux pour que Lisolo fonctionne bien, mais le service est fourni « en l’état », sans garantie d’être toujours disponible ou sans erreur.</p>
+          <p>Nous ne contrôlons pas à l’avance les messages envoyés par des tiers et nous ne sommes pas responsables de leur contenu. Nous les retirons lorsqu’ils nous sont signalés et qu’ils enfreignent ces règles. Notre responsabilité est limitée dans la mesure permise par la loi.</p>
+        </section>
+
+        <section class="sec" id="c-suppression">
+          <h3><span class="n">10</span>Supprimer ton compte</h3>
+          <p>Tu peux supprimer ton compte à tout moment depuis <strong>Profil, puis Supprimer mon compte</strong>. Tes données sont alors effacées comme expliqué dans la politique de confidentialité. Une période Premium restante n’est pas remboursée, sauf obligation légale.</p>
+        </section>
+
+        <section class="sec" id="c-modifs">
+          <h3><span class="n">11</span>Changements de ces conditions</h3>
+          <p>Nous pouvons modifier ces conditions. Chaque version porte un numéro. Si le changement est important, nous te demanderons de les accepter à nouveau pour continuer à utiliser Lisolo.</p>
+        </section>
+
+        <section class="sec" id="c-droit">
+          <h3><span class="n">12</span>Droit applicable</h3>
+          <p>Ces conditions sont régies par le droit applicable en République démocratique du Congo. En cas de désaccord, nous cherchons d’abord une solution à l’amiable. À défaut, les juridictions compétentes de Kinshasa pourront être saisies.</p>
+        </section>
+
+        <section class="sec" id="c-contact">
+          <h3><span class="n">13</span>Nous contacter</h3>
+          <p>Pour une question, un signalement ou un problème de paiement : <span class="contact"></span></p>
+        </section>
+      </article>
+
+      <article class="doc" id="confidentialite" hidden>
+        <h2 class="dt">Politique de confidentialité</h2>
+        <p class="dn">Ce que nous collectons, pourquoi, et comment tu gardes la main.</p>
+
+        <section class="sec" id="p-qui">
+          <h3><span class="n">1</span>Qui est responsable de tes données</h3>
+          <p><strong>OptiSite Digital</strong>, à Kinshasa (République démocratique du Congo), édite Lisolo et décide de la façon dont tes données sont utilisées.</p>
+        </section>
+
+        <section class="sec" id="p-donnees">
+          <h3><span class="n">2</span>Les données que nous collectons</h3>
+          <ul>
+            <li><strong>Ton compte :</strong> adresse email, nom affiché, pseudo, et photo de profil si tu te connectes avec Google. Ton mot de passe est géré par Firebase Authentication (Google) : nous n’y avons pas accès.</li>
+            <li><strong>Ce que tu reçois et crées :</strong> les messages anonymes que tu reçois, tes quiz, et les réponses des participants (prénom ou pseudo saisi, score).</li>
+            <li><strong>Une empreinte technique :</strong> avec chaque message envoyé ou réponse à un quiz, nous enregistrons une suite de caractères calculée à partir de l’adresse IP, du navigateur et d’un identifiant d’appareil. Elle ne révèle pas l’identité de la personne et n’est jamais montrée au destinataire. Elle sert uniquement à <strong>bloquer un expéditeur abusif</strong> et à limiter le spam.</li>
+            <li><strong>Tes paiements :</strong> la référence et le statut d’un paiement Premium. Le paiement lui-même est traité par SasPay. Nous ne stockons pas les identifiants ni le code secret de ton compte Mobile Money.</li>
+            <li><strong>Des compteurs globaux :</strong> nombre d’inscriptions, de messages, de quiz par jour, sans lien avec une personne précise.</li>
+          </ul>
+        </section>
+
+        <section class="sec" id="p-usage">
+          <h3><span class="n">3</span>Pourquoi nous les utilisons</h3>
+          <ul>
+            <li>Faire fonctionner Lisolo : te connecter, afficher tes messages et tes quiz.</li>
+            <li>Protéger le service et les personnes : limiter les abus, bloquer les expéditeurs, appliquer les règles.</li>
+            <li>Gérer le Premium : activer et suivre ton abonnement.</li>
+            <li>Mesurer l’usage de façon globale pour améliorer le service.</li>
+            <li>Respecter nos obligations légales.</li>
+          </ul>
+          <div class="note">Nous ne vendons pas tes données et nous n’utilisons pas de publicité ciblée.</div>
+        </section>
+
+        <section class="sec" id="p-stockage">
+          <h3><span class="n">4</span>Cookies et stockage sur ton appareil</h3>
+          <ul>
+            <li>Un <strong>cookie de session sécurisé</strong>, valable 14 jours, te garde connecté pour que tu n’aies pas à te reconnecter à chaque visite.</li>
+            <li>Un <strong>identifiant d’appareil</strong>, stocké localement, sert à la protection contre les abus. Ton dernier pseudo de quiz peut aussi être mémorisé pour te faire gagner du temps.</li>
+            <li>Nous n’utilisons pas de cookies publicitaires ni de traceurs de profilage.</li>
+          </ul>
+        </section>
+
+        <section class="sec" id="p-partage">
+          <h3><span class="n">5</span>Qui reçoit tes données</h3>
+          <p>Nous faisons appel à des prestataires techniques qui traitent des données pour notre compte :</p>
+          <ul>
+            <li><strong>Google (Firebase)</strong> : connexion des comptes et base de données.</li>
+            <li><strong>Render</strong> : hébergement du service. Il peut conserver des journaux techniques de connexion.</li>
+            <li><strong>SasPay</strong> : traitement des paiements Mobile Money.</li>
+          </ul>
+          <p>Ces prestataires peuvent héberger des données hors de la RDC. Nous pouvons aussi communiquer des informations à une autorité compétente lorsque la loi l’exige.</p>
+        </section>
+
+        <section class="sec" id="p-conservation">
+          <h3><span class="n">6</span>Combien de temps nous les gardons</h3>
+          <ul>
+            <li>Tes données restent tant que ton compte est actif.</li>
+            <li>Avec l’offre gratuite, tu ne vois que les messages des 7 derniers jours. Les plus anciens restent stockés, invisibles, jusqu’à ton passage au Premium ou la suppression de ton compte.</li>
+            <li>Si tu supprimes ton compte, ton profil, tes messages, tes quiz et leurs résultats sont effacés, avec les empreintes associées.</li>
+            <li>Les références de paiement peuvent être conservées le temps nécessaire à nos obligations comptables et légales.</li>
+          </ul>
+        </section>
+
+        <section class="sec" id="p-droits">
+          <h3><span class="n">7</span>Tes droits</h3>
+          <ul>
+            <li><strong>Accéder</strong> à tes informations : elles sont visibles dans ton profil.</li>
+            <li><strong>Corriger</strong> ton nom et ton pseudo depuis ton profil.</li>
+            <li><strong>Supprimer</strong> ton compte et tes données depuis Profil, puis Supprimer mon compte.</li>
+            <li><strong>Demander de l’aide</strong> ou t’opposer à un usage de tes données en nous contactant.</li>
+          </ul>
+        </section>
+
+        <section class="sec" id="p-securite">
+          <h3><span class="n">8</span>Sécurité</h3>
+          <p>Les échanges sont chiffrés (HTTPS), la session est protégée par un cookie inaccessible au code de la page, l’accès aux données est restreint et le service limite les abus. Aucune méthode n’est parfaitement sûre : choisis un mot de passe solide et ne le partage pas.</p>
+        </section>
+
+        <section class="sec" id="p-mineurs">
+          <h3><span class="n">9</span>Mineurs</h3>
+          <p>Lisolo est réservé aux personnes de 13 ans et plus. Si tu penses qu’un enfant plus jeune a créé un compte, contacte-nous et nous le supprimerons.</p>
+        </section>
+
+        <section class="sec" id="p-modifs">
+          <h3><span class="n">10</span>Changements de cette politique</h3>
+          <p>Nous pouvons mettre cette politique à jour. La date de mise à jour est indiquée en haut de la page, et nous te préviendrons dans l’application en cas de changement important.</p>
+        </section>
+
+        <section class="sec" id="p-contact">
+          <h3><span class="n">11</span>Nous contacter</h3>
+          <p>Pour toute question sur tes données : <span class="contact"></span></p>
+        </section>
+      </article>
+
+      <p class="foot"><a href="/">Accueil</a><a href="/login">Connexion</a><a href="/login#signup">Créer un compte</a></p>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var CONTACT_EMAIL = '';
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var docs = { conditions: $('#conditions'), confidentialite: $('#confidentialite') };
+  var titles = { conditions: 'Conditions d’utilisation', confidentialite: 'Politique de confidentialité' };
+  var tabs = $$('.tab');
+  var toc = $('#toc');
+  var spy = null;
+
+  $$('.contact').forEach(function (el) {
+    if (CONTACT_EMAIL) {
+      var a = document.createElement('a');
+      a.href = 'mailto:' + CONTACT_EMAIL;
+      a.textContent = CONTACT_EMAIL;
+      el.appendChild(a);
+    } else {
+      el.textContent = 'adresse de contact à venir.';
+    }
+  });
+
+  function docFromHash() {
+    var id = '';
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch (e) { id = ''; }
+    if (docs[id]) return id;
+    var el = id ? document.getElementById(id) : null;
+    var d = el && el.closest ? el.closest('.doc') : null;
+    return d ? d.id : 'conditions';
+  }
+
+  function buildToc(name) {
+    toc.textContent = '';
+    if (spy) { spy.disconnect(); spy = null; }
+    var secs = $$('.sec', docs[name]);
+    var links = {};
+    secs.forEach(function (s) {
+      var a = document.createElement('a');
+      a.href = '#' + s.id;
+      var t = s.querySelector('h3');
+      a.textContent = t ? t.textContent.replace(/^\d+/, '') : s.id;
+      toc.appendChild(a);
+      links[s.id] = a;
+    });
+    if (!('IntersectionObserver' in window)) return;
+    spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        Object.keys(links).forEach(function (k) { links[k].classList.remove('on'); });
+        var l = links[en.target.id];
+        if (l) {
+          l.classList.add('on');
+          if (window.matchMedia('(max-width: 959px)').matches && l.scrollIntoView) {
+            var box = toc.getBoundingClientRect();
+            var r = l.getBoundingClientRect();
+            toc.scrollLeft += r.left - box.left - 16;
+          }
+        }
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+
+  function show(name) {
+    Object.keys(docs).forEach(function (k) { docs[k].hidden = k !== name; });
+    tabs.forEach(function (t) {
+      var on = t.dataset.doc === name;
+      t.classList.toggle('on', on);
+      t.setAttribute('aria-selected', String(on));
+    });
+    $('#ind').style.transform = name === 'conditions' ? 'translateX(0)' : 'translateX(100%)';
+    document.title = titles[name] + ' – Lisolo';
+    buildToc(name);
+    reveal();
+  }
+
+  function reveal() {
+    var secs = $$('.sec').filter(function (s) { return !s.closest('[hidden]'); });
+    if (!('IntersectionObserver' in window)) { secs.forEach(function (s) { s.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -5% 0px' });
+    secs.forEach(function (s) { if (!s.classList.contains('in')) io.observe(s); });
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      if (location.hash.slice(1) === t.dataset.doc) show(t.dataset.doc);
+      else location.hash = t.dataset.doc;
+      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  });
+
+  window.addEventListener('hashchange', function () { show(docFromHash()); });
+
+  $('#back').addEventListener('click', function (e) {
+    try {
+      if (document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1) {
+        e.preventDefault();
+        history.back();
+      }
+    } catch (err) {}
+  });
+
+  document.documentElement.classList.add('rdy');
+  show(docFromHash());
+  var first = location.hash.slice(1);
+  if (first && !docs[first]) {
+    var target = document.getElementById(first);
+    if (target) setTimeout(function () { target.scrollIntoView(); }, 60);
+  }
+
+  fetch('/api/config', { credentials: 'same-origin' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (c) {
+      if (c && c.termsVersion) {
+        var v = $('#ver');
+        v.textContent = 'Version ' + String(c.termsVersion).slice(0, 12);
+        v.hidden = false;
+      }
+    })
+    .catch(function () {});
+})();
+</script>
+</body>
+</html>
