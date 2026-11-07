@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const admin = require('firebase-admin');
+const createPay = require('./pay');
 
 const isProd = process.env.NODE_ENV === 'production';
 const PORT = Number(process.env.PORT) || 10000;
@@ -264,6 +265,7 @@ function meView(u) {
     usage: { messagesThisMonth: used, quizzes: u.quizCount || 0 },
     unread: u.unread || 0,
     isAdmin: ADMIN_EMAILS.has(String(u.email).toLowerCase()),
+    price: payments.price,
   };
 }
 
@@ -441,6 +443,8 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
+const payments = createPay({ app, db, userRef, userCache, adminCache, bump, requireAuth, limiter, byUser, wrap, fail, HttpError, baseUrl, body, ID_RE, DAY });
+
 app.use((req, res, next) => {
   res.locals.nonce = crypto.randomBytes(16).toString('hex');
   next();
@@ -477,6 +481,8 @@ app.use(
 app.use(compression());
 
 app.get('/healthz', (req, res) => res.type('text').send('ok'));
+
+payments.mountWebhook();
 
 app.use('/api', limiter(60000, 300));
 app.use('/api', (req, res, next) => {
@@ -902,6 +908,8 @@ app.post(
   })
 );
 
+payments.mountRoutes();
+
 app.get(
   '/api/admin/stats',
   limiter(60000, 30),
@@ -927,6 +935,7 @@ app.get(
     const out = {
       totals: pick(snaps[0].exists ? snaps[0].data() : {}),
       premiumActive: prem.data().count,
+      currency: payments.price.currency,
       daily: days.map((d, i) => ({ date: d, ...pick(snaps[i + 1].exists ? snaps[i + 1].data() : {}) })),
       generatedAt: Date.now(),
     };
