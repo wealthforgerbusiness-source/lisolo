@@ -784,7 +784,7 @@ a{color:inherit}
       var url = u.value.trim() || '/app';
       var okUrl = ((url.charAt(0) === '/' && url.charAt(1) !== '/') || /^https:\/\/\S+$/i.test(url)) && !/\s/.test(url) && url.length <= 300;
       if (title.length < 1 || title.length > 60 || text.length < 2 || text.length > 200 || !okUrl) { toast(ERR.notify_invalid, 'err'); return; }
-      if (!(await ask('Envoyer à tous les utilisateurs ?', '« ' + title + ' » sera envoyée à tous les appareils abonnés. Cette action est immédiate.', 'Envoyer'))) return;
+      if (!(await ask('Envoyer à tous les utilisateurs ?', '« ' + title + ' » apparaîtra dans la cloche de tous les utilisateurs (avec le compteur +1) et sera envoyée aux appareils abonnés. Cette action est immédiate.', 'Envoyer'))) return;
       btn.classList.add('loading');
       try {
         var d = await api('/api/admin/notify', { method: 'POST', body: { title: title, body: text, url: url } });
@@ -792,7 +792,7 @@ a{color:inherit}
         m.value = '';
         sync();
         var n = (d && d.sent) || 0;
-        toast('Envoyée à ' + nf.format(n) + ' appareil' + (n > 1 ? 's' : '') + (d && d.failed ? ' · ' + d.failed + ' échec(s)' : ''));
+        toast('Publiée dans l’app · push envoyé à ' + nf.format(n) + ' appareil' + (n > 1 ? 's' : '') + (d && d.failed ? ' · ' + d.failed + ' échec(s)' : ''));
       } catch (e) {
         btn.classList.remove('loading');
         toast(explain(e), 'err');
