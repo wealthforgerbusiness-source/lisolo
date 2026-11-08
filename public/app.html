@@ -72,9 +72,10 @@ a{color:inherit}
 .iconbtn.wt:hover{background:rgba(255,255,255,.22)}
 .logo-o{display:block;width:34px;height:32px;background:var(--o);-webkit-mask:url(/images/lisolo-symbole-blanc.png) center/contain no-repeat;mask:url(/images/lisolo-symbole-blanc.png) center/contain no-repeat}
 
-.inp{width:100%;height:52px;border:1.5px solid var(--line);border-radius:14px;padding:0 16px;background:#fff;font-size:16px;outline:0;transition:border-color .2s,box-shadow .2s}
+.inp{width:100%;height:52px;border:1.5px solid var(--line);border-radius:14px;padding:0 16px;background:#fff;color:var(--ink);font-size:16px;outline:0;transition:border-color .2s,box-shadow .2s}
+.inp::placeholder,.ta::placeholder{color:#A39289;opacity:1}
 .inp:focus,.ta:focus{border-color:var(--o);box-shadow:0 0 0 4px rgba(248,90,3,.15)}
-.ta{width:100%;min-height:150px;resize:vertical;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;font-size:16px;line-height:1.5;outline:0;background:#fff;transition:border-color .2s,box-shadow .2s}
+.ta{width:100%;min-height:150px;resize:vertical;border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;color:var(--ink);font-size:16px;line-height:1.5;outline:0;background:#fff;transition:border-color .2s,box-shadow .2s}
 .lbl{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
 .pre-w{position:relative}
 .pre-w .pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-weight:800;color:var(--mut)}
@@ -355,7 +356,8 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
-    <symbol id="i-quiz" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.8"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+    <symbol id="i-quiz"viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.8"/><path d="M12 17h.01"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
@@ -479,6 +481,13 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     username_cooldown: 'Tu ne peux changer de pseudo qu’une fois tous les 30 jours.',
     block_limit: 'Tu as atteint la limite de blocages.',
     confirm_required: 'Confirmation requise.',
+    payment_unavailable: 'Le paiement n’est pas disponible pour le moment.',
+    payment_unreachable: 'Le service de paiement ne répond pas. Réessaie dans un instant.',
+    payment_failed: 'Le paiement n’a pas pu être lancé. Réessaie.',
+    push_unavailable: 'Les notifications ne sont pas encore configurées.',
+    push_denied: 'Les notifications sont bloquées. Autorise-les dans les réglages du navigateur.',
+    push_unsupported: 'Ce navigateur ne gère pas les notifications.',
+    notify_invalid: 'Vérifie le titre, le message et le lien (chemin /… ou https://…).',
     server_error: 'Erreur du serveur. Réessaie dans un instant.'
   };
   function explain(e) { return (e && ERR[e.code]) || 'Une erreur est survenue. Réessaie.'; }
@@ -759,9 +768,115 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           ['Messages anonymes illimités', 'Jusqu’à 100 quiz actifs', '30 questions par quiz', 'Réponses illimitées par quiz', 'Historique complet des messages', 'Statistiques des participants'].map(function (t) {
             return h('li', null, ic('check'), h('span', { text: t }));
           })),
-        h('div', { class: 'pricebig', text: PRICE_LABEL }),
+        h('div', { class: 'pricebig', text: (S.me && S.me.price && S.me.price.label) || PRICE_LABEL }),
         payBtn,
         h('button', { class: 'btn ghost block', type: 'button', on: { click: close } }, 'Plus tard')
+      ]);
+    });
+  }
+
+  async function handlePayReturn() {
+    var id = '';
+    try { id = new URLSearchParams(location.search).get('pay') || ''; } catch (e) { id = ''; }
+    if (!/^[A-Za-z0-9]{20}$/.test(id)) return;
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}
+    toast('Vérification du paiement…');
+    for (var i = 0; i < 6; i++) {
+      var d;
+      try { d = await api('/api/pay/confirm', { method: 'POST', body: { orderId: id } }); }
+      catch (e) { toast(explain(e), 'err'); return; }
+      if (d && d.status === 'paid') {
+        try { await loadMe(true); } catch (e) {}
+        toast('Premium activé. Merci !');
+        render();
+        return;
+      }
+      if (d && d.status === 'failed') { toast('Paiement échoué ou annulé.', 'err'); return; }
+      await new Promise(function (r) { setTimeout(r, 2500); });
+    }
+    toast('Paiement en cours de validation. Ton Premium s’activera dès la confirmation.');
+  }
+
+  var PUSH_OK = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+
+  function keyToBytes(s) {
+    var pad = '='.repeat((4 - (s.length % 4)) % 4);
+    var raw = atob((s + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  function pushErr(code) {
+    var e = new Error(code);
+    e.code = code;
+    return e;
+  }
+
+  async function pushEnable() {
+    if (!PUSH_OK) throw pushErr('push_unsupported');
+    var perm = await Notification.requestPermission();
+    if (perm !== 'granted') throw pushErr('push_denied');
+    var cfg = await api('/api/config');
+    if (!cfg || !cfg.vapidPublicKey) throw pushErr('push_unavailable');
+    var reg = await navigator.serviceWorker.ready;
+    var sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyToBytes(cfg.vapidPublicKey) });
+    await api('/api/push/subscribe', { method: 'POST', body: sub.toJSON() });
+    return true;
+  }
+
+  async function pushDisable() {
+    if (!PUSH_OK) return;
+    var reg = await navigator.serviceWorker.ready;
+    var sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    var endpoint = sub.endpoint;
+    try { await sub.unsubscribe(); } catch (e) {}
+    try { await api('/api/push/unsubscribe', { method: 'POST', body: { endpoint: endpoint } }); } catch (e) {}
+  }
+
+  async function pushIsOn() {
+    if (!PUSH_OK || Notification.permission !== 'granted') return false;
+    try {
+      var reg = await navigator.serviceWorker.ready;
+      return !!(await reg.pushManager.getSubscription());
+    } catch (e) { return false; }
+  }
+
+  function notifySheet() {
+    openSheet(function (card, close) {
+      var t = h('input', { class: 'inp', type: 'text', maxlength: '60', placeholder: 'Titre', autocomplete: 'off', id: 'ntitle', value: 'Lisolo' });
+      var m = h('textarea', { class: 'ta', maxlength: '200', placeholder: 'Ton message…', id: 'nbody', style: 'min-height:110px' });
+      var u = h('input', { class: 'inp', type: 'text', maxlength: '300', placeholder: '/app ou https://…', autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false', id: 'nurl', value: '/app' });
+      var btn = h('button', { class: 'btn pri block', type: 'button' }, ic('send'), 'Envoyer à tous');
+      btn.addEventListener('click', async function () {
+        var title = t.value.trim();
+        var text = m.value.trim();
+        var url = u.value.trim() || '/app';
+        if (title.length < 1 || title.length > 60 || text.length < 2 || text.length > 200 || !(/^\//.test(url) && !/^\/\//.test(url) || /^https:\/\//i.test(url))) {
+          toast(ERR.notify_invalid, 'err');
+          return;
+        }
+        if (!(await ask('Envoyer à tous les utilisateurs ?', 'La notification sera envoyée à tous les appareils abonnés. Cette action est immédiate.', 'Envoyer'))) return;
+        btn.classList.add('loading');
+        try {
+          var d = await api('/api/admin/notify', { method: 'POST', body: { title: title, body: text, url: url } });
+          close();
+          toast('Envoyée à ' + nf.format(d.sent || 0) + ' appareil' + ((d.sent || 0) > 1 ? 's' : '') + (d.failed ? ' · ' + d.failed + ' échec(s)' : ''));
+        } catch (e) {
+          btn.classList.remove('loading');
+          toast(explain(e), 'err');
+        }
+      });
+      add(card, [
+        h('h3', { text: 'Envoyer une notification' }),
+        h('p', { class: 'muted', text: 'Elle arrive sur le téléphone de tous les utilisateurs qui ont activé les notifications.' }),
+        h('div', null, h('label', { class: 'lbl', for: 'ntitle', text: 'Titre' }), t),
+        h('div', null, h('label', { class: 'lbl', for: 'nbody', text: 'Message' }), m),
+        h('div', null, h('label', { class: 'lbl', for: 'nurl', text: 'Lien de redirection au clic' }), u),
+        btn,
+        h('button', { class: 'btn ghost block', type: 'button', on: { click: close } }, 'Annuler')
       ]);
     });
   }
@@ -893,7 +1008,25 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
         h('span', { class: 'tw' }, 'Lien de partage', h('small', { text: 'Invite tes amis et fais découvrir Lisolo' })),
         ic('chev', 'chv')));
 
-    add(view, [hero, stats, usage, planCard, tiles]);
+    var adminBar = me.isAdmin
+      ? h('button', { class: 'btn wh block', type: 'button', on: { click: notifySheet } }, ic('bell'), 'Envoyer une notification')
+      : null;
+
+    var pushCard = null;
+    if (PUSH_OK && Notification.permission === 'default') {
+      var pb = h('button', { class: 'btn pri sm', type: 'button' }, 'Activer');
+      pb.addEventListener('click', async function () {
+        pb.classList.add('loading');
+        try { await pushEnable(); toast('Notifications activées'); render(); }
+        catch (e) { pb.classList.remove('loading'); toast(explain(e), 'err'); }
+      });
+      pushCard = h('div', { class: 'card tint plan' },
+        h('div', { class: 'pi' }, ic('bell')),
+        h('div', { class: 'pt' }, h('b', { text: 'Notifications' }), h('span', { text: 'Sois prévenu des nouveautés' })),
+        pb);
+    }
+
+    add(view, [adminBar, hero, stats, usage, planCard, pushCard, tiles]);
     nums.forEach(function (p) { countUp(p[0], p[1]); });
   }
 
@@ -1572,6 +1705,13 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
         S.installEvt = null;
         render();
       }) : null,
+      PUSH_OK ? row('bell', 'Activer / désactiver les notifications', async function () {
+        try {
+          if (await pushIsOn()) { await pushDisable(); toast('Notifications désactivées'); }
+          else { await pushEnable(); toast('Notifications activées'); }
+        } catch (e) { toast(explain(e), 'err'); }
+      }) : null,
+      me.isAdmin ? row('bell', 'Envoyer une notification', notifySheet) : null,
       me.isAdmin ? row('shield', 'Tableau de bord admin', null, false, '/admin') : null,
       row('doc', 'Conditions d’utilisation', null, false, '/legal'),
       row('logout', 'Se déconnecter', async function () {
@@ -1853,6 +1993,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     render();
     logoImage().catch(function () {});
     hideBoot();
+    handlePayReturn();
   }
 
   function boot() {
