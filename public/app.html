@@ -283,6 +283,17 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 .up .btn{width:100%}
 .up .btn.ghost{border-color:#D9C9BE;color:var(--ink)}
 @media(min-width:600px){.up{max-width:520px;padding-left:28px;padding-right:28px}}
+.sheet-card>*{flex:none}
+.sheet-card{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@media(max-height:760px){
+  .up{gap:12px}
+  .up h3{font-size:21px}
+  .up .ugl{width:52px;height:52px;border-radius:16px}
+  .up .ben{gap:8px}
+  .up .ben li{font-size:15.5px}
+  .up .pricebig{font-size:28px;padding:2px 0}
+  .up .btn.xl{height:54px;font-size:17px}
+}
 .rres{display:grid;gap:8px;max-height:46dvh;overflow:auto}
 .rr{display:flex;align-items:center;gap:12px;background:var(--tint);border-radius:14px;padding:10px 14px}
 .rr b{flex:1;overflow-wrap:anywhere}
@@ -863,43 +874,6 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     } catch (e) { return false; }
   }
 
-  function notifySheet() {
-    openSheet(function (card, close) {
-      var t = h('input', { class: 'inp', type: 'text', maxlength: '60', placeholder: 'Titre', autocomplete: 'off', id: 'ntitle', value: 'Lisolo' });
-      var m = h('textarea', { class: 'ta', maxlength: '200', placeholder: 'Ton message…', id: 'nbody', style: 'min-height:110px' });
-      var u = h('input', { class: 'inp', type: 'text', maxlength: '300', placeholder: '/app ou https://…', autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false', id: 'nurl', value: '/app' });
-      var btn = h('button', { class: 'btn pri block', type: 'button' }, ic('send'), 'Envoyer à tous');
-      btn.addEventListener('click', async function () {
-        var title = t.value.trim();
-        var text = m.value.trim();
-        var url = u.value.trim() || '/app';
-        if (title.length < 1 || title.length > 60 || text.length < 2 || text.length > 200 || !(/^\//.test(url) && !/^\/\//.test(url) || /^https:\/\//i.test(url))) {
-          toast(ERR.notify_invalid, 'err');
-          return;
-        }
-        if (!(await ask('Envoyer à tous les utilisateurs ?', 'La notification sera envoyée à tous les appareils abonnés. Cette action est immédiate.', 'Envoyer'))) return;
-        btn.classList.add('loading');
-        try {
-          var d = await api('/api/admin/notify', { method: 'POST', body: { title: title, body: text, url: url } });
-          close();
-          toast('Envoyée à ' + nf.format(d.sent || 0) + ' appareil' + ((d.sent || 0) > 1 ? 's' : '') + (d.failed ? ' · ' + d.failed + ' échec(s)' : ''));
-        } catch (e) {
-          btn.classList.remove('loading');
-          toast(explain(e), 'err');
-        }
-      });
-      add(card, [
-        h('h3', { text: 'Envoyer une notification' }),
-        h('p', { class: 'muted', text: 'Elle arrive sur le téléphone de tous les utilisateurs qui ont activé les notifications.' }),
-        h('div', null, h('label', { class: 'lbl', for: 'ntitle', text: 'Titre' }), t),
-        h('div', null, h('label', { class: 'lbl', for: 'nbody', text: 'Message' }), m),
-        h('div', null, h('label', { class: 'lbl', for: 'nurl', text: 'Lien de redirection au clic' }), u),
-        btn,
-        h('button', { class: 'btn ghost block', type: 'button', on: { click: close } }, 'Annuler')
-      ]);
-    });
-  }
-
   function myName() {
     var n = S.me && S.me.displayName ? String(S.me.displayName).trim() : '';
     return n || 'moi';
@@ -1027,10 +1001,6 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
         h('span', { class: 'tw' }, 'Lien de partage', h('small', { text: 'Invite tes amis et fais découvrir Lisolo' })),
         ic('chev', 'chv')));
 
-    var adminBar = me.isAdmin
-      ? h('button', { class: 'btn wh block', type: 'button', on: { click: notifySheet } }, ic('bell'), 'Envoyer une notification')
-      : null;
-
     var bellBtn = h('button', { class: 'iconbtn wt bell', type: 'button', 'aria-label': 'Activer les notifications', 'aria-pressed': 'false' }, ic('bell'));
     function paintBell(on) {
       bellBtn.classList.toggle('on', !!on);
@@ -1058,7 +1028,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     });
     bar.appendChild(bellBtn);
 
-    add(view, [adminBar, hero, stats, usage, planCard, tiles]);
+    add(view, [hero, stats, usage, planCard, tiles]);
     nums.forEach(function (p) { countUp(p[0], p[1]); });
   }
 
@@ -1743,7 +1713,6 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           else { await pushEnable(); toast('Notifications activées'); }
         } catch (e) { toast(explain(e), 'err'); }
       }) : null,
-      me.isAdmin ? row('bell', 'Envoyer une notification', notifySheet) : null,
       me.isAdmin ? row('shield', 'Tableau de bord admin', null, false, '/admin') : null,
       row('doc', 'Conditions d’utilisation', null, false, '/legal'),
       row('logout', 'Se déconnecter', async function () {
