@@ -60,7 +60,9 @@ a{color:inherit}
 .btn.wh{background:#fff;color:var(--o3);box-shadow:0 12px 26px rgba(0,0,0,.18)}
 .btn.glass{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.5)}
 .btn.glass:hover{background:rgba(255,255,255,.28)}
-.btn.sm{height:40px;padding:0 14px;font-size:14px;border-radius:12px}
+.btn.sm{height:46px;min-width:76px;padding:0 18px;font-size:15.5px;border-radius:14px}
+.btn.xl{height:62px;padding:0 24px;font-size:18px;border-radius:18px;letter-spacing:.01em}
+.btn.xl .ic{width:22px;height:22px}
 .btn.block{width:100%}
 .btn.loading{color:transparent!important;pointer-events:none}
 .btn.loading::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
@@ -108,9 +110,15 @@ a{color:inherit}
 .bar-t{font-size:22px;font-weight:800;letter-spacing:-.01em}
 .bar .iconbtn{color:#fff}
 .bar .iconbtn:hover{background:rgba(255,255,255,.18)}
+.bell{position:relative;width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4)}
+.bell .ic{width:26px;height:26px}
+.bell::after{content:"";position:absolute;top:8px;right:9px;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--o3)}
+.bell.on::after{display:none}
+.bell.on .ic path:first-child{fill:rgba(255,255,255,.92)}
+.bell:disabled{opacity:.6}
 .bar .btn.pri{background:#fff;color:var(--o3);box-shadow:0 8px 18px rgba(60,20,0,.22)}
 .bar .btn.pri:hover{background:var(--tint)}
-.view{max-width:720px;margin:0 auto;padding:18px 16px 28px;outline:0;animation:viewin .32s var(--ease)}
+.view{display:grid;gap:16px;align-content:start;max-width:720px;margin:0 auto;padding:18px 16px 28px;outline:0;animation:viewin .32s var(--ease)}
 .view.enter>*{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0)*55ms)}
 .view.enter .hero .hello{animation:rise .5s .04s var(--ease) both}
 .view.enter .hero h2{animation:rise .55s .1s var(--ease) both}
@@ -143,7 +151,9 @@ a{color:inherit}
 .stack{display:grid;gap:14px}
 .card{background:#fff;border:1.5px solid rgba(255,255,255,.5);border-radius:22px;padding:18px;color:var(--ink);box-shadow:0 18px 38px rgba(80,26,0,.18)}
 .card.tint{background:var(--tint);border-color:var(--tint2)}
-.h3{font-size:18px;font-weight:800}
+.h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.card .muted{font-size:15px;line-height:1.5}
+.card .meter{margin-top:14px}
 
 .hero{position:relative;overflow:hidden;border-radius:28px;background:linear-gradient(158deg,rgba(122,42,0,.4),rgba(122,42,0,.18) 58%,rgba(60,20,0,.24));border:1px solid rgba(255,255,255,.34);color:#fff;padding:24px 20px 20px;box-shadow:0 26px 52px rgba(80,26,0,.32);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 .hero::after{content:"";position:absolute;top:-60%;bottom:-60%;left:0;width:55%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.2),transparent);transform:skewX(-14deg) translateX(-170%);animation:sheen 6s 1.2s var(--ease) infinite;pointer-events:none}
@@ -168,6 +178,8 @@ button.stat:active{transform:scale(.97)}
 .meter{height:8px;border-radius:6px;background:var(--tint2);overflow:hidden;margin-top:12px}
 .meter i{display:block;height:100%;width:0;border-radius:6px;background:var(--o);transition:width .9s var(--ease)}
 .plan{display:flex;align-items:center;gap:14px}
+.plan .btn{flex:none}
+@media(max-width:380px){.plan{flex-wrap:wrap}.plan .btn{width:100%}}
 .plan .pi{width:46px;height:46px;border-radius:15px;background:var(--o);color:#fff;display:grid;place-items:center;flex:none}
 .plan .pt{flex:1;min-width:0}
 .plan .pt b{display:block;font-size:16px}
@@ -185,7 +197,7 @@ button.stat:active{transform:scale(.97)}
 .note{display:flex;align-items:center;gap:10px;background:rgba(122,42,0,.3);border:1px solid rgba(255,255,255,.26);border-radius:16px;padding:12px 14px;font-size:14px;font-weight:600;color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .note .ic{width:20px;height:20px}
 .note span{flex:1}
-.note .lk{color:#fff}
+.note .lk{color:var(--o3);background:#fff;text-decoration:none;padding:0 16px;min-height:44px;display:inline-flex;align-items:center;border-radius:13px;font-size:15px;box-shadow:0 8px 18px rgba(60,20,0,.2)}
 .lk{font-weight:800;color:var(--o2);text-decoration:underline;text-underline-offset:3px;font-size:14px}
 
 .msg{position:relative;background:#fff;border:1.5px solid rgba(255,255,255,.45);border-radius:22px;padding:16px;color:var(--ink);box-shadow:0 14px 30px rgba(80,26,0,.16);transition:opacity .25s,transform .25s,border-color .3s,background .3s;animation:rise .45s var(--ease) both;animation-delay:calc(var(--i,0)*45ms)}
@@ -200,7 +212,7 @@ button.stat:active{transform:scale(.97)}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--o);flex:none}
 .mt{margin:12px 0;font-size:17px;line-height:1.5;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere}
 .ma{display:flex;gap:8px;flex-wrap:wrap}
-.ma .btn{height:38px;padding:0 12px;font-size:13.5px;border-radius:11px}
+.ma .btn{height:44px;padding:0 14px;font-size:14.5px;border-radius:12px}
 .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:44px 18px;color:#fff;background:rgba(122,42,0,.22);border:1px solid rgba(255,255,255,.2);border-radius:24px}
 .empty .eb{width:92px;height:92px;border-radius:50%;background:rgba(122,42,0,.35);border:1px solid rgba(255,255,255,.32);color:#fff;display:grid;place-items:center;position:relative}
 .empty .eb .ic{width:40px;height:40px}
@@ -214,7 +226,7 @@ button.stat:active{transform:scale(.97)}
 .qrow h3{font-size:17px;font-weight:800;overflow-wrap:anywhere}
 .qrow .meta{font-size:13.5px;color:var(--mut);font-weight:600;margin:3px 0 12px}
 .qa{display:flex;gap:8px;flex-wrap:wrap}
-.qa .btn{height:38px;padding:0 12px;font-size:13.5px;border-radius:11px}
+.qa .btn{height:44px;padding:0 14px;font-size:14.5px;border-radius:12px}
 
 .avatar{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--o);color:#fff;font-weight:800;font-size:19px;overflow:hidden;flex:none}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
@@ -264,7 +276,13 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 .ben{list-style:none;display:grid;gap:10px}
 .ben li{display:flex;gap:12px;align-items:flex-start;font-weight:600;font-size:15.5px}
 .ben .ic{width:20px;height:20px;color:var(--o);margin-top:2px}
-.pricebig{text-align:center;font-size:30px;font-weight:800;color:var(--o3)}
+.pricebig{text-align:center;font-size:34px;font-weight:800;color:var(--o3);line-height:1.15;padding:6px 0}
+.up{gap:16px}
+.up h3{text-align:center;font-size:24px}
+.up .ben li{font-size:17px;line-height:1.4}
+.up .btn{width:100%}
+.up .btn.ghost{border-color:#D9C9BE;color:var(--ink)}
+@media(min-width:600px){.up{max-width:520px;padding-left:28px;padding-right:28px}}
 .rres{display:grid;gap:8px;max-height:46dvh;overflow:auto}
 .rr{display:flex;align-items:center;gap:12px;background:var(--tint);border-radius:14px;padding:10px 14px}
 .rr b{flex:1;overflow-wrap:anywhere}
@@ -748,7 +766,8 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 
   function upgradeSheet(reason) {
     openSheet(function (card, close) {
-      var payBtn = h('button', { class: 'btn pri block', type: 'button' }, 'Payer avec Mobile Money');
+      card.classList.add('up');
+      var payBtn = h('button', { class: 'btn pri block xl', type: 'button' }, 'Payer avec Mobile Money');
       payBtn.addEventListener('click', async function () {
         payBtn.classList.add('loading');
         try {
@@ -770,7 +789,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           })),
         h('div', { class: 'pricebig', text: (S.me && S.me.price && S.me.price.label) || PRICE_LABEL }),
         payBtn,
-        h('button', { class: 'btn ghost block', type: 'button', on: { click: close } }, 'Plus tard')
+        h('button', { class: 'btn ghost block xl', type: 'button', on: { click: close } }, 'Plus tard')
       ]);
     });
   }
@@ -1012,21 +1031,34 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
       ? h('button', { class: 'btn wh block', type: 'button', on: { click: notifySheet } }, ic('bell'), 'Envoyer une notification')
       : null;
 
-    var pushCard = null;
-    if (PUSH_OK && Notification.permission === 'default') {
-      var pb = h('button', { class: 'btn pri sm', type: 'button' }, 'Activer');
-      pb.addEventListener('click', async function () {
-        pb.classList.add('loading');
-        try { await pushEnable(); toast('Notifications activées'); render(); }
-        catch (e) { pb.classList.remove('loading'); toast(explain(e), 'err'); }
-      });
-      pushCard = h('div', { class: 'card tint plan' },
-        h('div', { class: 'pi' }, ic('bell')),
-        h('div', { class: 'pt' }, h('b', { text: 'Notifications' }), h('span', { text: 'Sois prévenu des nouveautés' })),
-        pb);
+    var bellBtn = h('button', { class: 'iconbtn wt bell', type: 'button', 'aria-label': 'Activer les notifications', 'aria-pressed': 'false' }, ic('bell'));
+    function paintBell(on) {
+      bellBtn.classList.toggle('on', !!on);
+      bellBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      bellBtn.setAttribute('aria-label', on ? 'Notifications activées (toucher pour désactiver)' : 'Activer les notifications');
     }
+    pushIsOn().then(function (on) { if (!stale()) paintBell(on); });
+    bellBtn.addEventListener('click', async function () {
+      if (bellBtn.disabled) return;
+      bellBtn.disabled = true;
+      try {
+        if (await pushIsOn()) {
+          if (await ask('Désactiver les notifications ?', 'Tu ne recevras plus les nouveautés de Lisolo sur cet appareil.', 'Désactiver', true)) {
+            await pushDisable();
+            paintBell(false);
+            toast('Notifications désactivées');
+          }
+        } else {
+          await pushEnable();
+          paintBell(true);
+          toast('Notifications activées');
+        }
+      } catch (e) { toast(explain(e), 'err'); }
+      bellBtn.disabled = false;
+    });
+    bar.appendChild(bellBtn);
 
-    add(view, [adminBar, hero, stats, usage, planCard, pushCard, tiles]);
+    add(view, [adminBar, hero, stats, usage, planCard, tiles]);
     nums.forEach(function (p) { countUp(p[0], p[1]); });
   }
 
