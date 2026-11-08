@@ -19,7 +19,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k !== 'lisolo-badge').map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -38,6 +38,24 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Compteur sur l'icône de l'app installée (+1 à chaque notification reçue)
+async function bumpBadge() {
+  try {
+    const c = await caches.open('lisolo-badge');
+    const r = await c.match('/__badge');
+    const n = (r ? parseInt(await r.text(), 10) || 0 : 0) + 1;
+    await c.put('/__badge', new Response(String(n)));
+    if (self.navigator && typeof self.navigator.setAppBadge === 'function') await self.navigator.setAppBadge(n);
+  } catch (e) {}
+}
+
+async function tellClients() {
+  try {
+    const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    list.forEach((c) => c.postMessage({ type: 'push' }));
+  } catch (e) {}
+}
+
 self.addEventListener('push', (event) => {
   let data = {};
   try {
@@ -53,7 +71,7 @@ self.addEventListener('push', (event) => {
     tag: data.tag ? String(data.tag) : undefined,
     data: { url: typeof data.url === 'string' && data.url ? data.url : '/app' },
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(Promise.all([self.registration.showNotification(title, options), bumpBadge(), tellClients()]));
 });
 
 self.addEventListener('notificationclick', (event) => {
