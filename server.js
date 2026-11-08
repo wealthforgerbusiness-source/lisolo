@@ -1300,6 +1300,36 @@ app.post(
   })
 );
 
+app.delete(
+  '/api/admin/users/:uid',
+  limiter(60000, 20),
+  ...requireAdmin,
+  wrap(async (req, res) => {
+    const target = req.params.uid;
+    if (!UID_RE.test(target)) fail(400, 'bad_request');
+    if (target === req.user.uid) fail(400, 'self_delete');
+    if (body(req).confirm !== 'SUPPRIMER') fail(400, 'confirm_required');
+    const s = await userRef(target).get();
+    if (!s.exists) fail(404, 'not_found');
+    const u = s.data();
+    if (ADMIN_EMAILS.has(String(u.email || '').toLowerCase())) fail(403, 'admin_protected');
+    const qs = await db.collection('quizzes').where('ownerUid', '==', target).get();
+    for (const d of qs.docs) {
+      await db.recursiveDelete(d.ref);
+      quizCache.del(d.id);
+    }
+    const subs = await db.collection('pushSubs').where('uid', '==', target).get();
+    await Promise.all(subs.docs.map((d) => d.ref.delete().catch(() => {})));
+    await db.recursiveDelete(userRef(target));
+    if (u.username) await db.doc('usernames/' + u.username).delete().catch(() => {});
+    await auth.deleteUser(target).catch((e) => console.error('[admin delete]', e.message));
+    userCache.del(target);
+    if (u.username) profileCache.del(u.username);
+    adminCache.del('stats');
+    res.json({ ok: true });
+  })
+);
+
 app.use('/api', (req, res) => res.status(404).json({ error: 'not_found' }));
 
 for (const name of ['index', 'login', 'app', 'admin', 'legal']) {
