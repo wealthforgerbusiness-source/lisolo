@@ -495,7 +495,7 @@ function sendPage(res, name, meta) {
 const defaultMeta = (req) => ({
   title: 'Lisolo',
   description: 'Messages anonymes et quiz. Reçois la vérité, lance des quiz et amuse-toi.',
-  image: baseUrl(req) + '/images/og-default.png',
+  image: baseUrl(req) + '/images/og-default.png?v=2',
   url: baseUrl(req) + (req.path === '/index' || req.path === '/index.html' ? '/' : req.path),
 });
 
@@ -1317,7 +1317,7 @@ app.get(
       ? {
           title: `Envoie un message anonyme à ${p.displayName}`,
           description: `${p.displayName} sur Lisolo. Dis ce que tu penses vraiment, personne ne saura que c'est toi.`,
-          image: b + '/images/og-message.png',
+          image: b + '/images/og-message.png?v=2',
           url: `${b}/u/${p.username}`,
         }
       : { ...defaultMeta(req), url: `${b}/u/${encodeURIComponent(String(req.params.username).slice(0, 32))}` };
@@ -1340,7 +1340,7 @@ app.get(
             description: ownerName
               ? `${ownerName} te défie : « ${z.title} ». Tu me connais vraiment ? Teste-toi sur Lisolo.`
               : `${z.title}. Tu me connais vraiment ? Teste-toi sur Lisolo.`,
-            image: b + '/images/og-quiz.png',
+            image: b + '/images/og-quiz.png?v=2',
             url: `${b}/q/${z.id}`,
           }
         : { ...defaultMeta(req), url: `${b}/q/${encodeURIComponent(String(req.params.id).slice(0, 64))}` };
