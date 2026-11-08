@@ -105,20 +105,26 @@ a{color:inherit}
 .ind{position:absolute;top:0;left:0;width:30px;height:4px;border-radius:0 0 4px 4px;background:#fff;transform:translate(var(--ix,0px),var(--iy,0px));transition:transform .45s var(--ease),opacity .2s;opacity:0;pointer-events:none}
 .ind.show{opacity:1}
 .bd{position:absolute;top:7px;left:calc(50% + 6px);min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#fff;color:var(--o3);font-size:11px;font-weight:800;display:grid;place-items:center;border:2px solid rgba(126,40,0,.45);animation:pop .45s var(--ease)}
-.main{position:relative;z-index:1;padding-bottom:calc(var(--navh) + var(--sb) + 12px)}
+.main{position:relative;z-index:1;overflow-x:clip;max-width:100%;padding-bottom:calc(var(--navh) + var(--sb) + 12px)}
 .bar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(var(--st) + 10px) 16px 10px;background:linear-gradient(180deg,rgba(126,40,0,.5),rgba(126,40,0,.2));-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.18);min-height:64px;color:#fff}
 .bar-t{font-size:22px;font-weight:800;letter-spacing:-.01em}
 .bar .iconbtn{color:#fff}
 .bar .iconbtn:hover{background:rgba(255,255,255,.18)}
 .bell{position:relative;width:48px;height:48px;border-radius:15px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4)}
 .bell .ic{width:26px;height:26px}
-.bell::after{content:"";position:absolute;top:8px;right:9px;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid var(--o3)}
-.bell.on::after{display:none}
+.bell .nb{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#fff;color:var(--o3);font-size:12px;font-weight:800;line-height:1;display:grid;place-items:center;border:2px solid var(--o3);animation:pop .45s var(--ease)}
+.nl{display:grid;gap:10px;max-height:50dvh;overflow:auto;overscroll-behavior:contain}
+.nt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff;color:var(--ink)}
+button.nt:active{transform:scale(.99)}
+.nt.new{border-color:var(--o);background:var(--tint)}
+.nt b{display:block;font-size:15.5px;overflow-wrap:anywhere}
+.nt p{font-size:14.5px;margin-top:2px;overflow-wrap:anywhere}
+.nt small{display:block;margin-top:6px;font-size:12.5px;color:var(--mut);font-weight:600}
 .bell.on .ic path:first-child{fill:rgba(255,255,255,.92)}
 .bell:disabled{opacity:.6}
 .bar .btn.pri{background:#fff;color:var(--o3);box-shadow:0 8px 18px rgba(60,20,0,.22)}
 .bar .btn.pri:hover{background:var(--tint)}
-.view{display:grid;gap:16px;align-content:start;max-width:720px;margin:0 auto;padding:18px 16px 28px;outline:0;animation:viewin .32s var(--ease)}
+.view{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-content:start;max-width:720px;margin:0 auto;padding:18px 16px 28px;outline:0;animation:viewin .32s var(--ease)}
 .view.enter>*{animation:rise .55s var(--ease) both;animation-delay:calc(var(--i,0)*55ms)}
 .view.enter .hero .hello{animation:rise .5s .04s var(--ease) both}
 .view.enter .hero h2{animation:rise .55s .1s var(--ease) both}
@@ -328,7 +334,8 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 .ok-view svg.big{width:96px;height:96px}
 .ok-view svg.big circle{fill:none;stroke:var(--o);stroke-width:4;stroke-dasharray:252;stroke-dashoffset:252;animation:draw .6s .1s var(--ease) forwards}
 .ok-view svg.big path{fill:none;stroke:var(--o);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:draw .4s .55s var(--ease) forwards}
-.linkline{display:flex;align-items:center;gap:8px;width:100%;background:var(--tint);border-radius:16px;padding:6px 6px 6px 16px}
+.view>*{min-width:0}
+.linkline{display:flex;min-width:0;align-items:center;gap:8px;width:100%;background:var(--tint);border-radius:16px;padding:6px 6px 6px 16px}
 .linkline .lt{color:var(--o3)}
 
 .pub{position:relative;min-height:100dvh;overflow:hidden}
@@ -720,6 +727,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     tab: 'home',
     inbox: { items: [], next: null, ts: 0, fresh: 0, historyDays: null },
     quizzes: { items: null, ts: 0 },
+    notif: { items: [], unseen: 0, seenAt: 0 },
     installEvt: null
   };
 
@@ -732,6 +740,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
   }
 
   function updateBadge() {
+    syncAppBadge();
     var b = $('#bd');
     if (!b) return;
     var n = S.me ? S.me.unread || 0 : 0;
@@ -874,6 +883,112 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     } catch (e) { return false; }
   }
 
+  function syncAppBadge() {
+    var n = (S.me ? S.me.unread || 0 : 0) + (S.notif ? S.notif.unseen || 0 : 0);
+    try {
+      if (navigator.setAppBadge) {
+        if (n > 0) navigator.setAppBadge(n).catch(function () {});
+        else if (navigator.clearAppBadge) navigator.clearAppBadge().catch(function () {});
+      }
+    } catch (e) {}
+    try {
+      if (window.caches) caches.open('lisolo-badge').then(function (c) { return c.put('/__badge', new Response(String(n))); }).catch(function () {});
+    } catch (e) {}
+  }
+
+  function paintNotifBadges() {
+    var n = S.notif.unseen || 0;
+    $$('.nb').forEach(function (b) {
+      var was = b.textContent;
+      b.hidden = n <= 0;
+      b.textContent = n > 9 ? '9+' : String(n);
+      if (n > 0 && was !== b.textContent) {
+        b.style.animation = 'none';
+        void b.offsetWidth;
+        b.style.animation = '';
+      }
+    });
+    $$('.bell').forEach(function (b) {
+      b.setAttribute('aria-label', n > 0 ? 'Notifications : ' + n + ' non lue' + (n > 1 ? 's' : '') : 'Notifications');
+    });
+    syncAppBadge();
+  }
+
+  async function loadNotifs() {
+    try {
+      var d = await api('/api/notifications');
+      S.notif.items = d.items || [];
+      S.notif.unseen = d.unseen || 0;
+      S.notif.seenAt = d.seenAt || 0;
+      paintNotifBadges();
+    } catch (e) {}
+  }
+
+  function notifSheet() {
+    var seenBefore = S.notif.seenAt || 0;
+    openSheet(function (card, close) {
+      var list = h('div', { class: 'nl' });
+      function openTarget(u) {
+        try {
+          var t = new URL(u, origin);
+          var tab = t.hash.slice(1);
+          close();
+          if (t.origin === origin && t.pathname === '/app') setTimeout(function () { go(TABS[tab] ? tab : 'home'); }, 280);
+          else location.href = t.href;
+        } catch (e) {}
+      }
+      function paint() {
+        list.textContent = '';
+        if (!S.notif.items.length) {
+          list.appendChild(h('p', { class: 'muted', style: 'text-align:center;padding:18px 0', text: 'Aucune notification pour le moment.' }));
+          return;
+        }
+        S.notif.items.forEach(function (it) {
+          var link = it.url && it.url !== '/app';
+          var el = h(link ? 'button' : 'div', { class: 'nt' + (it.createdAt > seenBefore ? ' new' : ''), type: link ? 'button' : null },
+            h('b', { text: it.title }),
+            h('p', { text: it.body }),
+            h('small', { text: ago(it.createdAt) }));
+          if (link) el.addEventListener('click', function () { openTarget(it.url); });
+          list.appendChild(el);
+        });
+      }
+      var kids = [h('h3', { text: 'Notifications' }), list];
+      if (PUSH_OK) {
+        var pbtn = h('button', { class: 'btn ghost block', type: 'button' });
+        var paintPush = function (on) {
+          pbtn.textContent = '';
+          pbtn.appendChild(ic('bell'));
+          pbtn.appendChild(document.createTextNode(on ? 'Désactiver les alertes sur cet appareil' : 'Activer les alertes sur cet appareil'));
+          $$('.bell').forEach(function (b) { b.classList.toggle('on', !!on); });
+        };
+        pushIsOn().then(paintPush);
+        pbtn.addEventListener('click', async function () {
+          if (pbtn.disabled) return;
+          pbtn.disabled = true;
+          try {
+            if (await pushIsOn()) { await pushDisable(); paintPush(false); toast('Alertes désactivées'); }
+            else { await pushEnable(); paintPush(true); toast('Alertes activées'); }
+          } catch (e) { toast(explain(e), 'err'); }
+          pbtn.disabled = false;
+        });
+        kids.push(pbtn);
+      }
+      kids.push(h('button', { class: 'btn ghost block', type: 'button', on: { click: close } }, 'Fermer'));
+      add(card, kids);
+      paint();
+      loadNotifs().then(async function () {
+        seenBefore = S.notif.seenAt || seenBefore;
+        paint();
+        try {
+          await api('/api/notifications/seen', { method: 'POST', body: {} });
+          S.notif.unseen = 0;
+          paintNotifBadges();
+        } catch (e) {}
+      });
+    });
+  }
+
   function myName() {
     var n = S.me && S.me.displayName ? String(S.me.displayName).trim() : '';
     return n || 'moi';
@@ -1001,32 +1116,11 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
         h('span', { class: 'tw' }, 'Lien de partage', h('small', { text: 'Invite tes amis et fais découvrir Lisolo' })),
         ic('chev', 'chv')));
 
-    var bellBtn = h('button', { class: 'iconbtn wt bell', type: 'button', 'aria-label': 'Activer les notifications', 'aria-pressed': 'false' }, ic('bell'));
-    function paintBell(on) {
-      bellBtn.classList.toggle('on', !!on);
-      bellBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
-      bellBtn.setAttribute('aria-label', on ? 'Notifications activées (toucher pour désactiver)' : 'Activer les notifications');
-    }
-    pushIsOn().then(function (on) { if (!stale()) paintBell(on); });
-    bellBtn.addEventListener('click', async function () {
-      if (bellBtn.disabled) return;
-      bellBtn.disabled = true;
-      try {
-        if (await pushIsOn()) {
-          if (await ask('Désactiver les notifications ?', 'Tu ne recevras plus les nouveautés de Lisolo sur cet appareil.', 'Désactiver', true)) {
-            await pushDisable();
-            paintBell(false);
-            toast('Notifications désactivées');
-          }
-        } else {
-          await pushEnable();
-          paintBell(true);
-          toast('Notifications activées');
-        }
-      } catch (e) { toast(explain(e), 'err'); }
-      bellBtn.disabled = false;
-    });
+    var bellBtn = h('button', { class: 'iconbtn wt bell', type: 'button', 'aria-label': 'Notifications' }, ic('bell'), h('span', { class: 'nb', hidden: true, 'aria-hidden': 'true' }));
+    pushIsOn().then(function (on) { if (!stale()) bellBtn.classList.toggle('on', !!on); });
+    bellBtn.addEventListener('click', notifSheet);
     bar.appendChild(bellBtn);
+    paintNotifBadges();
 
     add(view, [hero, stats, usage, planCard, tiles]);
     nums.forEach(function (p) { countUp(p[0], p[1]); });
@@ -1989,8 +2083,18 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     window.addEventListener('resize', placeInd);
     window.addEventListener('appinstalled', function () { S.installEvt = null; });
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible' && Date.now() - S.meTs > 60000) loadMe(true).catch(function () {});
+      if (document.visibilityState === 'visible') {
+        loadNotifs();
+        if (Date.now() - S.meTs > 60000) loadMe(true).catch(function () {});
+      }
     });
+    loadNotifs();
+    setInterval(function () { if (document.visibilityState === 'visible') loadNotifs(); }, 60000);
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'push') { loadNotifs(); loadMe(true).catch(function () {}); }
+      });
+    }
     render();
     logoImage().catch(function () {});
     hideBoot();
