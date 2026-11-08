@@ -1394,11 +1394,11 @@ app.get(
     const meta =
       z && z.active
         ? {
-            title: ownerName ? `Quiz de ${ownerName} : ${z.title}` : `Réponds au quiz « ${z.title} »`,
+            title: ownerName ? `${ownerName} te défie : ${z.title}` : `Quiz : ${z.title}`,
             description: ownerName
-              ? `${ownerName} te défie : « ${z.title} ». Tu me connais vraiment ? Teste-toi sur Lisolo.`
-              : `${z.title}. Tu me connais vraiment ? Teste-toi sur Lisolo.`,
-            image: b + '/images/og-quiz.png?v=2',
+              ? `Réponds aux questions de ${ownerName} et découvre ton score. Ça prend 1 minute sur Lisolo !`
+              : 'Réponds aux questions et découvre ton score. Ça prend 1 minute sur Lisolo !',
+            image: b + '/images/og-quiz.png?v=3',
             url: `${b}/q/${z.id}`,
           }
         : { ...defaultMeta(req), url: `${b}/q/${encodeURIComponent(String(req.params.id).slice(0, 64))}` };
