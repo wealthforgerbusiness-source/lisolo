@@ -929,13 +929,13 @@ app.get(
     const s = await qref.get();
     if (!s.exists || s.data().ownerUid !== req.user.uid) fail(404, 'not_found');
     const answers = s.data().answers || 0;
-    if (!isPremium(req.user)) return res.json({ answers, locked: true, items: [], next: null });
     const beforeRaw = Number(req.query.before);
     const before = Number.isFinite(beforeRaw) && beforeRaw > 0 ? beforeRaw : Date.now() + 1;
     const n = 30;
     const snap = await qref.collection('results').orderBy('at', 'desc').where('at', '<', before).limit(n).get();
     const items = snap.docs.map((d) => ({ nickname: d.data().nickname, score: d.data().score, total: d.data().total, at: d.data().at }));
-    return res.json({ answers, locked: false, items, next: snap.size === n ? items[items.length - 1].at : null });
+    const cap = limitsFor(req.user).answersPerQuiz;
+    return res.json({ answers, locked: false, limit: cap, items, next: snap.size === n ? items[items.length - 1].at : null });
   })
 );
 
