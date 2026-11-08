@@ -1533,6 +1533,11 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           list.appendChild(h('div', { class: 'rr' }, h('b', null, r.nickname, h('small', { text: ago(r.at) })), h('span', { class: 'sc', text: r.score + '/' + r.total })));
         });
         body.appendChild(list);
+        if (d.limit && d.answers >= d.limit && !before) {
+          body.appendChild(h('div', { class: 'note' }, ic('lock'),
+            h('span', { text: 'Ce quiz a atteint ' + d.limit + ' réponses (offre gratuite). Passe Premium pour en recevoir plus.' }),
+            h('button', { class: 'lk', type: 'button', on: { click: function () { close(); setTimeout(function () { upgradeSheet(''); }, 250); } } }, 'Premium')));
+        }
         if (d.next) {
           before = d.next;
           var more = h('button', { class: 'btn ghost block', type: 'button' }, 'Charger plus');
