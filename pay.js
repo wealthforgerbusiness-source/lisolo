@@ -57,7 +57,7 @@ function createPay(ctx) {
     return json.data !== undefined ? json.data : json;
   }
 
-  async function settleOrder(orderId, txId, netAmount) {
+  async function settleOrder(orderId, txId, netAmount, txCurrency) {
     const oref = payments().doc(orderId);
     const out = await db.runTransaction(async (tx) => {
       const os = await tx.get(oref);
@@ -67,10 +67,20 @@ function createPay(ctx) {
       const now = Date.now();
       const us = await tx.get(userRef(o.uid));
       if (us.exists) {
-        const cur = Number(us.data().planExpiresAt || 0);
-        tx.update(userRef(o.uid), { plan: 'premium', planExpiresAt: Math.max(now, cur) + o.days * DAY });
+        const ud = us.data();
+        const cur = Number(ud.planExpiresAt || 0);
+        const patch = { plan: 'premium', planExpiresAt: Math.max(now, cur) + o.days * DAY };
+        if (ud.pendingPay && ud.pendingPay.id === orderId) patch.pendingPay = null;
+        tx.update(userRef(o.uid), patch);
       }
-      tx.update(oref, { status: 'paid', paidAt: now, txId: String(txId), netAmount: netAmount !== undefined ? String(netAmount) : null, orphan: !us.exists });
+      tx.update(oref, {
+        status: 'paid',
+        paidAt: now,
+        txId: String(txId),
+        txCurrency: txCurrency ? String(txCurrency).toUpperCase().slice(0, 3) : null,
+        netAmount: netAmount !== undefined ? String(netAmount) : null,
+        orphan: !us.exists,
+      });
       return { already: false, uid: o.uid, amount: Number(o.amount), currency: o.currency };
     });
     if (out && !out.already) {
@@ -81,14 +91,29 @@ function createPay(ctx) {
     return out;
   }
 
+  async function markFailed(orderId) {
+    const oref = payments().doc(orderId);
+    await db.runTransaction(async (tx) => {
+      const os = await tx.get(oref);
+      if (!os.exists) return;
+      const o = os.data();
+      if (o.status !== 'pending') return;
+      tx.update(oref, { status: 'failed', failedAt: Date.now() });
+    });
+    return 'failed';
+  }
+
   async function checkOrder(orderId, o, timeout) {
     const st = await sas('/checkout-sessions/' + encodeURIComponent(o.sessionId) + '/status/', { timeout });
     const tx = String(st.transaction_status || '').toUpperCase();
-    if (tx === 'SUCCESS' && st.transaction_id && TX_RE.test(String(st.transaction_id))) {
+    const session = String(st.status || '').toUpperCase();
+    if ((tx === 'SUCCESS' || session === 'PAID') && st.transaction_id && TX_RE.test(String(st.transaction_id))) {
       await settleOrder(orderId, st.transaction_id);
       return 'paid';
     }
-    if (tx === 'FAILED') return 'failed';
+    if (tx === 'FAILED' || tx === 'CANCELLED' || session === 'FAILED' || session === 'CANCELLED' || session === 'EXPIRED') {
+      return markFailed(orderId);
+    }
     return 'pending';
   }
 
@@ -103,23 +128,52 @@ function createPay(ctx) {
 
   async function matchOrder(d) {
     const txId = String(d.id);
+    if (!TX_RE.test(txId)) return null;
     const byTx = await payments().where('txId', '==', txId).limit(1).get();
     if (!byTx.empty) return null;
-    const cur = String(d.currency || currency).toUpperCase();
-    const amt = Number(d.amount);
+
+    const meta = d.metadata && typeof d.metadata === 'object' ? d.metadata : null;
+    const metaId = meta && typeof meta.orderId === 'string' ? meta.orderId : '';
+    if (ID_RE.test(metaId)) {
+      const os = await payments().doc(metaId).get();
+      if (os.exists && os.data().status !== 'paid' && (!meta.uid || os.data().uid === meta.uid)) {
+        await settleOrder(metaId, txId, d.net_amount, d.currency);
+        return metaId;
+      }
+    }
+
     const now = Date.now();
-    const snap = await payments().where('status', '==', 'pending').where('day', 'in', [dayOf(now), dayOf(now - DAY)]).limit(200).get();
-    const cands = snap.docs
+    const snap = await payments().where('day', 'in', [dayOf(now), dayOf(now - DAY)]).limit(200).get();
+    const cur = String(d.currency || '').toUpperCase();
+    const values = [d.amount, d.charged, d.net_amount].map(Number).filter(Number.isFinite);
+    const all = snap.docs
+      .map((x) => ({ id: x.id, o: x.data() }))
+      .filter((x) => (x.o.status === 'pending' || x.o.status === 'failed') && x.o.sessionId && now - x.o.createdAt < 6 * HOUR);
+    const fast = all.filter((x) => {
+      const sameCurrency = !cur || x.o.currency === cur;
+      const sameAmount = !values.length || values.some((v) => Math.abs(Number(x.o.amount) - v) < 0.005);
+      return sameCurrency && sameAmount;
+    });
+    const seen = new Set();
+    const cands = fast
+      .concat(all)
       .filter((x) => {
-        const o = x.data();
-        return o.currency === cur && now - o.createdAt < 6 * HOUR && (!Number.isFinite(amt) || Math.abs(Number(o.amount) - amt) < 0.005);
+        if (seen.has(x.id)) return false;
+        seen.add(x.id);
+        return true;
       })
-      .sort((a, b) => b.data().createdAt - a.data().createdAt)
-      .slice(0, 10);
+      .sort((a, b) => b.o.createdAt - a.o.createdAt)
+      .slice(0, 6);
+
     for (const c of cands) {
-      const st = await sas('/checkout-sessions/' + encodeURIComponent(c.data().sessionId) + '/status/', { timeout: 6000 });
+      let st;
+      try {
+        st = await sas('/checkout-sessions/' + encodeURIComponent(c.o.sessionId) + '/status/', { timeout: 2200 });
+      } catch (e) {
+        continue;
+      }
       if (String(st.transaction_id || '') === txId && String(st.transaction_status || '').toUpperCase() === 'SUCCESS') {
-        await settleOrder(c.id, txId, d.net_amount);
+        await settleOrder(c.id, txId, d.net_amount, d.currency);
         return c.id;
       }
     }
@@ -163,15 +217,16 @@ function createPay(ctx) {
         if (!process.env.SASPAY_SECRET_KEY) fail(503, 'payment_unavailable');
         const u = req.user;
         const now = Date.now();
-        const open = await payments().where('uid', '==', u.uid).where('status', '==', 'pending').limit(25).get();
-        let reuse = null;
-        open.docs.forEach((d) => {
-          const o = d.data();
-          if (o.checkoutUrl && now - o.createdAt < 20 * 60000 && o.amount === amount && o.currency === currency && (!reuse || o.createdAt > reuse.createdAt)) {
-            reuse = { id: d.id, url: o.checkoutUrl, createdAt: o.createdAt };
+        const pending = u.pendingPay && typeof u.pendingPay === 'object' && ID_RE.test(String(u.pendingPay.id || '')) ? u.pendingPay : null;
+        if (pending && now - Number(pending.createdAt || 0) < 20 * 60000) {
+          const os = await payments().doc(pending.id).get();
+          if (os.exists) {
+            const o = os.data();
+            if (o.uid === u.uid && o.status === 'pending' && o.checkoutUrl && o.amount === amount && o.currency === currency && now - Number(o.createdAt || 0) < 20 * 60000) {
+              return res.json({ url: o.checkoutUrl, orderId: pending.id });
+            }
           }
-        });
-        if (reuse) return res.json({ url: reuse.url, orderId: reuse.id });
+        }
         const oref = payments().doc();
         const session = {
           amount,
@@ -200,6 +255,8 @@ function createPay(ctx) {
           createdAt: now,
           txId: null,
         });
+        await userRef(u.uid).set({ pendingPay: { id: oref.id, createdAt: now } }, { merge: true });
+        userCache.del(u.uid);
         return res.json({ url, orderId: oref.id });
       })
     );
@@ -216,7 +273,7 @@ function createPay(ctx) {
         if (!s.exists || s.data().uid !== req.user.uid) fail(404, 'not_found');
         const o = s.data();
         if (o.status === 'paid') return res.json({ status: 'paid' });
-        const status = await checkOrder(id, o, 10000);
+        const status = await checkOrder(id, o, 8000);
         return res.json({ status });
       })
     );
