@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const admin = require('firebase-admin');
+const webpush = require('web-push');
 const createPay = require('./pay');
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -60,6 +61,22 @@ const FieldValue = admin.firestore.FieldValue;
 
 const SECRET =
   process.env.SESSION_SECRET || crypto.createHash('sha256').update(String(sa.private_key)).digest('hex');
+
+const VAPID_PUBLIC = String(process.env.VAPID_PUBLIC_KEY || '').trim();
+const VAPID_PRIVATE = String(process.env.VAPID_PRIVATE_KEY || '').trim();
+const PUSH_ON = !!(VAPID_PUBLIC && VAPID_PRIVATE);
+if (PUSH_ON) {
+  try {
+    const firstAdmin = [...ADMIN_EMAILS][0];
+    const subject = String(process.env.VAPID_SUBJECT || '').trim() || (firstAdmin ? 'mailto:' + firstAdmin : BASE || 'mailto:admin@example.com');
+    webpush.setVapidDetails(subject, VAPID_PUBLIC, VAPID_PRIVATE);
+  } catch (e) {
+    console.error('[push] clés VAPID invalides:', e.message);
+  }
+} else {
+  console.warn('[config] notifications push désactivées (VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY manquantes)');
+}
+const subId = (endpoint) => crypto.createHash('sha256').update(String(endpoint)).digest('hex').slice(0, 40);
 
 const LIMITS = {
   free: { messagesPerMonth: 30, quizzes: 2, questions: 10, answersPerQuiz: 20, historyDays: 7 },
@@ -563,6 +580,7 @@ app.get('/api/config', limiter(60000, 60), (req, res) => {
     },
     termsVersion: TERMS_VERSION,
     limits: LIMITS,
+    vapidPublicKey: PUSH_ON ? VAPID_PUBLIC : '',
   });
 });
 
@@ -697,6 +715,8 @@ app.delete(
       await db.recursiveDelete(d.ref);
       quizCache.del(d.id);
     }
+    const subs = await db.collection('pushSubs').where('uid', '==', u.uid).get();
+    await Promise.all(subs.docs.map((d) => d.ref.delete().catch(() => {})));
     await db.recursiveDelete(userRef(u.uid));
     await db.doc('usernames/' + u.username).delete();
     await auth.deleteUser(u.uid).catch(() => {});
@@ -976,6 +996,96 @@ app.post(
 );
 
 payments.mountRoutes();
+
+app.post(
+  '/api/push/subscribe',
+  limiter(60000, 20),
+  requireAuth,
+  byUser(3600000, 30),
+  wrap(async (req, res) => {
+    if (!PUSH_ON) fail(503, 'push_unavailable');
+    const b = body(req);
+    const endpoint = typeof b.endpoint === 'string' ? b.endpoint : '';
+    const k = b.keys && typeof b.keys === 'object' ? b.keys : {};
+    if (
+      !/^https:\/\//i.test(endpoint) ||
+      endpoint.length > 600 ||
+      typeof k.p256dh !== 'string' ||
+      typeof k.auth !== 'string' ||
+      k.p256dh.length > 200 ||
+      k.auth.length > 100
+    ) {
+      fail(400, 'bad_request');
+    }
+    await db
+      .collection('pushSubs')
+      .doc(subId(endpoint))
+      .set({ uid: req.user.uid, endpoint, keys: { p256dh: k.p256dh, auth: k.auth }, createdAt: Date.now() });
+    res.json({ ok: true });
+  })
+);
+
+app.post(
+  '/api/push/unsubscribe',
+  limiter(60000, 20),
+  requireAuth,
+  wrap(async (req, res) => {
+    const endpoint = typeof body(req).endpoint === 'string' ? body(req).endpoint : '';
+    if (endpoint && endpoint.length <= 600) {
+      const ref = db.collection('pushSubs').doc(subId(endpoint));
+      const s = await ref.get();
+      if (s.exists && s.data().uid === req.user.uid) await ref.delete();
+    }
+    res.json({ ok: true });
+  })
+);
+
+app.post(
+  '/api/admin/notify',
+  limiter(60000, 5),
+  ...requireAdmin,
+  wrap(async (req, res) => {
+    if (!PUSH_ON) fail(503, 'push_unavailable');
+    const b = body(req);
+    const title = line(b.title, 1, 60, 'notify_invalid');
+    const text = line(b.body, 2, 200, 'notify_invalid');
+    let url = typeof b.url === 'string' ? b.url.trim() : '';
+    if (!url) url = '/app';
+    const relative = url.startsWith('/') && !url.startsWith('//');
+    if (url.length > 300 || /\s/.test(url) || !(relative || /^https:\/\/\S+$/i.test(url))) fail(400, 'notify_invalid');
+    const payload = JSON.stringify({ title, body: text, url, tag: 'lisolo-' + Date.now() });
+    let sent = 0;
+    let failed = 0;
+    let removed = 0;
+    let last = null;
+    for (let page = 0; page < 100; page++) {
+      let q = db.collection('pushSubs').orderBy(admin.firestore.FieldPath.documentId()).limit(200);
+      if (last) q = q.startAfter(last);
+      const snap = await q.get();
+      for (let i = 0; i < snap.docs.length; i += 20) {
+        await Promise.all(
+          snap.docs.slice(i, i + 20).map(async (d) => {
+            const s = d.data();
+            try {
+              await webpush.sendNotification({ endpoint: s.endpoint, keys: s.keys }, payload, { TTL: 86400, urgency: 'normal' });
+              sent += 1;
+            } catch (e) {
+              if (e && (e.statusCode === 404 || e.statusCode === 410)) {
+                removed += 1;
+                await d.ref.delete().catch(() => {});
+              } else {
+                failed += 1;
+              }
+            }
+          })
+        );
+      }
+      if (snap.size < 200) break;
+      last = snap.docs[snap.docs.length - 1];
+    }
+    res.json({ ok: true, sent, failed, removed });
+  })
+);
 
 app.get(
   '/api/admin/stats',
