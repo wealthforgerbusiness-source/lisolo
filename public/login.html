@@ -283,7 +283,7 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
         <div class="vicon"><svg class="ic"><use href="#i-mail"/></svg></div>
         <h3 class="vt" id="verifyTitle">Vérifie ta boîte mail</h3>
         <p class="vp"><span id="verifyText"></span><strong id="verifyEmail"></strong></p>
-        <p class="vp">Pense à regarder dans les spams. Après avoir cliqué sur le lien, reviens ici et connecte-toi.</p>
+        <p class="vp"><strong>Tu ne vois rien ? Ouvre tes SPAMS (courrier indésirable).</strong>L’email vient d’un expéditeur « noreply » (firebaseapp.com). Appuie sur « Pas un spam », puis clique sur le lien. Après ça, reviens ici et connecte-toi.</p>
         <button class="btn sec" type="button" id="resendBtn">Renvoyer l’email</button>
         <button class="btn pri" type="button" id="verifyBack">J’ai confirmé, me connecter</button>
       </div>
@@ -915,7 +915,7 @@ $('#forgot').addEventListener('click', async () => {
     } catch (e) {
       if (e.code === 'auth/too-many-requests' || e.code === 'auth/network-request-failed') throw e;
     }
-    showMsg('Si un compte existe pour cet email, un lien de réinitialisation vient d’être envoyé.', 'info');
+    showMsg('Si un compte existe pour cet email, un lien de réinitialisation vient d’être envoyé. Regarde aussi dans tes spams.', 'info');
   });
 });
 
