@@ -1093,6 +1093,33 @@ app.post(
 );
 
 app.get(
+  '/api/admin/announcements',
+  limiter(60000, 30),
+  ...requireAdmin,
+  wrap(async (req, res) => {
+    const snap = await db.collection('announcements').orderBy('createdAt', 'desc').limit(50).get();
+    res.json({
+      items: snap.docs.map((d) => {
+        const x = d.data();
+        return { id: d.id, title: x.title, body: x.body, url: x.url || '/app', createdAt: x.createdAt };
+      }),
+    });
+  })
+);
+
+app.delete(
+  '/api/admin/announcements/:id',
+  limiter(60000, 30),
+  ...requireAdmin,
+  wrap(async (req, res) => {
+    if (!ID_RE.test(req.params.id)) fail(404, 'not_found');
+    await db.collection('announcements').doc(req.params.id).delete();
+    annCache.del('list');
+    res.json({ ok: true });
+  })
+);
+
+app.get(
   '/api/notifications',
   limiter(60000, 60),
   requireAuth,
