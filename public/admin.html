@@ -281,6 +281,9 @@ a{color:inherit}
     not_found: 'Introuvable.',
     days_invalid: 'Durée invalide (1 à 3650 jours).',
     self_ban: 'Tu ne peux pas te bannir toi-même.',
+    self_delete: 'Tu ne peux pas supprimer ton propre compte ici.',
+    admin_protected: 'Un compte administrateur ne peut pas être supprimé ici.',
+    confirm_required: 'Confirmation requise.',
     bad_request: 'Requête invalide.',
     notify_invalid: 'Vérifie le titre, le message et le lien (chemin /… ou https://…).',
     push_unavailable: 'Les notifications ne sont pas configurées sur le serveur.',
@@ -652,12 +655,26 @@ a{color:inherit}
       } catch (e) { ban.classList.remove('loading'); toast(explain(e), 'err'); }
     });
 
+    var del = h('button', { class: 'btn dang sm', type: 'button' }, 'Supprimer');
+    del.addEventListener('click', async function () {
+      var ok = await ask('Supprimer ce compte définitivement ?',
+        u.email + ' sera effacé avec ses quiz, ses messages et son lien. Cette action est irréversible.',
+        'Supprimer', true);
+      if (!ok) return;
+      del.classList.add('loading');
+      try {
+        await api('/api/admin/users/' + u.uid, { method: 'DELETE', body: { confirm: 'SUPPRIMER' } });
+        toast('Compte supprimé');
+        row.remove();
+      } catch (e) { del.classList.remove('loading'); toast(explain(e), 'err'); }
+    });
+
     add(row, [
       h('div', { class: 'ut' },
         h('span', { class: 'av', text: initial(u.displayName) }),
         h('div', { class: 'ui' }, h('b', { text: u.displayName || '—' }), h('span', { text: '@' + (u.username || '') + ' · ' + (u.email || '') }))),
       meta,
-      h('div', { class: 'ua' }, grant, revoke, ban)
+      h('div', { class: 'ua' }, grant, revoke, ban, del)
     ]);
     return row;
   }
