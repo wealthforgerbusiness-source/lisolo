@@ -257,6 +257,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 .opt-b:active{transform:scale(.98)}
 .opt-b .oi{width:46px;height:46px;border-radius:14px;background:var(--tint);color:var(--o);display:grid;place-items:center;flex:none}
 .opt-b small{display:block;font-weight:600;color:var(--mut);font-size:13.5px}
+.opt-b .chv{margin-left:auto;width:18px;height:18px;color:#B8AAA2}
 .ugl{width:64px;height:64px;border-radius:20px;background:var(--o);color:#fff;display:grid;place-items:center;margin:2px auto 0;animation:beat 2.4s var(--ease) infinite}
 .ugl .ic{width:32px;height:32px}
 .ben{list-style:none;display:grid;gap:10px}
@@ -765,24 +766,38 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     });
   }
 
+  function myName() {
+    var n = S.me && S.me.displayName ? String(S.me.displayName).trim() : '';
+    return n || 'moi';
+  }
+
+  function shareTextFor(kind) {
+    if (kind === 'msg') return 'Envoie un message anonyme à ' + myName() + ' sur Lisolo :';
+    return SHARE_LINKS[kind].shareText;
+  }
+
   function linkSheet(kind) {
     var cfg = SHARE_LINKS[kind];
     var url = origin + cfg.path();
     openSheet(function (card, close) {
       var shareBtn = h('button', { class: 'btn pri block', type: 'button' }, ic('share'), 'Partager le lien');
-      shareBtn.addEventListener('click', function () { shareLink(url, cfg.shareText); });
+      shareBtn.addEventListener('click', function () { shareLink(url, shareTextFor(kind)); });
       var imgBtn = h('button', { class: 'btn soft block', type: 'button' }, ic('image'), 'Partager avec l’image');
       imgBtn.addEventListener('click', function () { shareLinkImage(kind, imgBtn); });
       var copyBtn = h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Copier le lien' }, ic('copy'));
       copyBtn.addEventListener('click', function () { copyLink(url); });
       var waBtn = h('button', { class: 'btn ghost', type: 'button' }, ic('send'), 'WhatsApp');
-      waBtn.addEventListener('click', function () { whatsapp(cfg.shareText, url); });
+      waBtn.addEventListener('click', function () { whatsapp(shareTextFor(kind), url); });
       var dlBtn = h('button', { class: 'btn ghost', type: 'button' }, ic('download'), 'Image');
       dlBtn.addEventListener('click', function () { downloadShareImage(kind, 'story', dlBtn); });
       add(card, [
         h('h3', { text: cfg.label }),
         h('img', { class: 'shareprev', src: cfg.image, alt: 'Aperçu ' + cfg.title, width: '1200', height: '630' }),
         h('div', { class: 'shareprev-cap', text: 'Aperçu affiché quand tu partages le lien' }),
+        h('button', { class: 'opt-b', type: 'button', on: { click: function () { close(); setTimeout(function () { editNameSheet(function () { linkSheet(kind); }); }, 320); } } },
+          h('span', { class: 'oi' }, ic('edit')),
+          h('span', null, 'Nom affiché sur le lien', h('small', { text: S.me.displayName })),
+          ic('chev', 'chv')),
         h('div', { class: 'linkline' },
           h('span', { class: 'lt', text: location.host + cfg.path() }),
           copyBtn),
@@ -1039,7 +1054,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     if (btn) btn.classList.add('loading');
     try {
       var blob = await shareCard(kind, 'story');
-      var ok = await shareFile(blob, cfg.file, cfg.shareText + '\n' + origin + cfg.path());
+      var ok = await shareFile(blob, cfg.file, shareTextFor(kind) + '\n' + origin + cfg.path());
       toast(ok ? 'Choisis « Statut » ou une discussion.' : 'Image enregistrée. Ajoute-la à ton statut.');
     } catch (e) {
       toast('Impossible de créer l’image.', 'err');
@@ -1234,7 +1249,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
         h('h3', { text: q.title }),
         h('div', { class: 'meta', text: nf.format(q.answers) + ' réponse' + (q.answers > 1 ? 's' : '') + ' · ' + q.questions + ' questions' }),
         h('div', { class: 'qa' },
-          h('button', { class: 'btn soft', type: 'button', on: { click: function () { shareLink(url, 'Réponds à mon quiz'); } } }, ic('share'), 'Partager'),
+          h('button', { class: 'btn soft', type: 'button', on: { click: function () { shareLink(url, 'Réponds au quiz de ' + myName() + ' sur Lisolo'); } } }, ic('share'), 'Partager'),
           h('button', { class: 'btn ghost', type: 'button', on: { click: function () { copyLink(url); } } }, ic('copy'), 'Copier'),
           h('button', { class: 'btn ghost', type: 'button', on: { click: function () { showResults(q); } } }, ic('list'), 'Résultats'),
           h('button', { class: 'btn ghost', type: 'button', 'aria-label': 'Supprimer le quiz', on: { click: async function () {
@@ -1405,8 +1420,14 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           h('p', { class: 'muted', text: 'Partage ce lien pour que tes amis y répondent.' }),
           h('div', { class: 'linkline' }, h('span', { class: 'lt', text: location.host + '/q/' + d.id }),
             h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Copier le lien', on: { click: function () { copyLink(url); } } }, ic('copy'))),
-          h('button', { class: 'btn pri block', type: 'button', on: { click: function () { shareLink(url, 'Réponds à mon quiz'); } } }, ic('share'), 'Partager'),
-          h('button', { class: 'btn soft block', type: 'button', on: { click: function () { whatsapp('Réponds à mon quiz', url); } } }, ic('send'), 'Envoyer sur WhatsApp'),
+          (function () {
+            var nm = h('span', { text: 'Nom affiché : ' + myName() });
+            var b = h('button', { class: 'btn ghost block', type: 'button' }, ic('edit'), nm);
+            b.addEventListener('click', function () { editNameSheet(function () { nm.textContent = 'Nom affiché : ' + myName(); }); });
+            return b;
+          })(),
+          h('button', { class: 'btn pri block', type: 'button', on: { click: function () { shareLink(url, 'Réponds au quiz de ' + myName() + ' sur Lisolo'); } } }, ic('share'), 'Partager'),
+          h('button', { class: 'btn soft block', type: 'button', on: { click: function () { whatsapp('Réponds au quiz de ' + myName() + ' sur Lisolo', url); } } }, ic('send'), 'Envoyer sur WhatsApp'),
           h('button', { class: 'btn ghost block', type: 'button', on: { click: function () { closeOv(); go('quiz'); } } }, 'Voir mes quiz'))]);
         loadMe(true).catch(function () {});
       } catch (e) {
@@ -1435,7 +1456,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     return el;
   }
 
-  function editNameSheet() {
+  function editNameSheet(after) {
     openSheet(function (card, close) {
       var inp = h('input', { class: 'inp', type: 'text', maxlength: '40', value: S.me.displayName, autocomplete: 'name', id: 'ednm' });
       var btn = h('button', { class: 'btn pri block', type: 'button' }, 'Enregistrer');
@@ -1447,11 +1468,17 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           await api('/api/me', { method: 'PATCH', body: { displayName: v } });
           S.me.displayName = v;
           close();
-          toast('Nom mis à jour');
+          toast('Nom affiché mis à jour');
           if (S.tab === 'profile') render();
+          if (after) setTimeout(after, 280);
         } catch (e) { btn.classList.remove('loading'); toast(explain(e), 'err'); }
       });
-      add(card, [h('h3', { text: 'Modifier mon nom' }), h('div', null, h('label', { class: 'lbl', for: 'ednm', text: 'Nom affiché' }), inp), btn]);
+      add(card, [
+        h('h3', { text: 'Nom affiché sur mes liens' }),
+        h('p', { class: 'muted', text: 'C’est le nom que tes amis voient quand ils ouvrent ton lien, par exemple Olivier. Il peut être différent du nom de ton compte Google.' }),
+        h('div', null, h('label', { class: 'lbl', for: 'ednm', text: 'Nom affiché' }), inp),
+        btn
+      ]);
       setTimeout(function () { inp.focus(); }, 300);
     });
   }
@@ -1534,7 +1561,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     var planRow = me.plan === 'premium' ? null : row('star', 'Passer au Premium', function () { upgradeSheet(''); });
     var rows = h('div', { class: 'rows' },
       planRow,
-      row('edit', 'Modifier mon nom', editNameSheet),
+      row('edit', 'Nom affiché sur mes liens', editNameSheet),
       row('user', 'Changer mon pseudo', editUserSheet),
       S.installEvt ? row('download', 'Installer l’application', async function () {
         var ev = S.installEvt;
@@ -1844,7 +1871,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
   window.addEventListener('load', function () {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(function () {});
   });
-})()
+})();
 </script>
 </body>
 </html>
