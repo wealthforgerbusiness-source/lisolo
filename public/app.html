@@ -1027,7 +1027,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
       g.textAlign = 'center'; g.fillStyle = '#B53E00'; g.font = '800 24px ' + FF;
       g.fillText(kind === 'app' ? 'Crée ton lien en 30 secondes' : 'Réponds à mon statut', W / 2, cardY + 302);
       g.fillStyle = '#fff'; g.font = '800 44px ' + FF;
-      g.fillText('LIEN EN BIO', W / 2, 1440);
+      g.fillText(kind === 'app' ? 'Crée ton lien en 30 secondes' : 'Envoie-moi un message anonyme', W / 2, 1440);
       g.globalAlpha = 0.9; g.font = '600 30px ' + FF;
       g.fillText('Lisolo · messages anonymes et quiz', W / 2, 1500);
       g.globalAlpha = 1;
@@ -1542,6 +1542,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
       avatar(me, 'lg'),
       h('h2', { text: me.displayName }),
       h('span', { class: 'muted', text: '@' + me.username }),
+      me.age ? h('span', { class: 'muted', text: me.age + ' ans' }) : null,
       me.plan === 'premium'
         ? h('span', { class: 'chip pro' }, ic('star'), 'Premium')
         : h('span', { class: 'chip' }, 'Offre gratuite'));
