@@ -158,6 +158,23 @@ function fingerprint(req) {
 
 const baseUrl = (req) => BASE || `${req.protocol}://${req.get('host')}`;
 
+function withTimeout(promise, ms, fallback) {
+  let timer;
+  const guard = new Promise((resolve) => {
+    timer = setTimeout(() => resolve(fallback), ms);
+  });
+  return Promise.race([Promise.resolve(promise).catch(() => fallback), guard]).then(
+    (v) => {
+      clearTimeout(timer);
+      return v;
+    },
+    () => {
+      clearTimeout(timer);
+      return fallback;
+    }
+  );
+}
+
 function originOk(req) {
   const origin = req.get('origin');
   if (!origin) return true;
@@ -382,6 +399,7 @@ function loadPage(name) {
 }
 
 function injectMeta(html, m) {
+  const alt = esc(m.title);
   const tags = [
     '<meta property="og:type" content="website">',
     '<meta property="og:site_name" content="Lisolo">',
@@ -390,12 +408,16 @@ function injectMeta(html, m) {
     `<meta property="og:description" content="${esc(m.description)}">`,
     `<meta property="og:url" content="${esc(m.url)}">`,
     `<meta property="og:image" content="${esc(m.image)}">`,
+    `<meta property="og:image:secure_url" content="${esc(m.image)}">`,
+    '<meta property="og:image:type" content="image/png">',
     '<meta property="og:image:width" content="1200">',
     '<meta property="og:image:height" content="630">',
+    `<meta property="og:image:alt" content="${alt}">`,
     '<meta name="twitter:card" content="summary_large_image">',
     `<meta name="twitter:title" content="${esc(m.title)}">`,
     `<meta name="twitter:description" content="${esc(m.description)}">`,
     `<meta name="twitter:image" content="${esc(m.image)}">`,
+    `<meta name="twitter:image:alt" content="${alt}">`,
     `<meta name="description" content="${esc(m.description)}">`,
     `<link rel="canonical" href="${esc(m.url)}">`,
   ].join('\n');
@@ -1021,23 +1043,23 @@ app.use('/api', (req, res) => res.status(404).json({ error: 'not_found' }));
 
 for (const name of ['index', 'login', 'app', 'admin', 'legal']) {
   const paths = name === 'index' ? ['/', '/index', '/index.html'] : ['/' + name, '/' + name + '.html'];
-  app.get(paths, (req, res) => sendPage(res, name, name === 'index' ? defaultMeta(req) : null));
+  app.get(paths, (req, res) => sendPage(res, name, name === 'index' || name === 'app' ? defaultMeta(req) : null));
 }
 
 app.get(
   '/u/:username',
   limiter(60000, 60),
   wrap(async (req, res) => {
-    const p = await getPublicProfile(req.params.username);
+    const p = await withTimeout(getPublicProfile(req.params.username), 1500, null);
     const b = baseUrl(req);
     const meta = p
       ? {
-          title: 'Envoie-moi un message anonyme',
+          title: `Envoie un message anonyme à ${p.displayName}`,
           description: `${p.displayName} sur Lisolo. Dis ce que tu penses vraiment, personne ne saura que c'est toi.`,
           image: b + '/images/og-message.png',
           url: `${b}/u/${p.username}`,
         }
-      : defaultMeta(req);
+      : { ...defaultMeta(req), url: `${b}/u/${encodeURIComponent(String(req.params.username).slice(0, 32))}` };
     sendPage(res, 'app', meta);
   })
 );
@@ -1046,17 +1068,17 @@ app.get(
   '/q/:id',
   limiter(60000, 60),
   wrap(async (req, res) => {
-    const z = ID_RE.test(req.params.id) ? await getQuiz(req.params.id) : null;
+    const z = ID_RE.test(req.params.id) ? await withTimeout(getQuiz(req.params.id), 1500, null) : null;
     const b = baseUrl(req);
     const meta =
       z && z.active
         ? {
-            title: 'Réponds à mon quiz',
+            title: `Réponds au quiz « ${z.title} »`,
             description: `${z.title}. Tu me connais vraiment ? Teste-toi sur Lisolo.`,
             image: b + '/images/og-quiz.png',
             url: `${b}/q/${z.id}`,
           }
-        : defaultMeta(req);
+        : { ...defaultMeta(req), url: `${b}/q/${encodeURIComponent(String(req.params.id).slice(0, 64))}` };
     sendPage(res, 'app', meta);
   })
 );
