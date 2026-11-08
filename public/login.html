@@ -93,6 +93,8 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 .inp input{width:100%;height:52px;border:1.5px solid var(--line);border-radius:var(--r);padding:0 16px;background:#fff;font-size:16px;outline:0;transition:border-color .2s,box-shadow .2s}
 .inp input::placeholder{color:#B5A8A0}
 .inp input:focus{border-color:var(--o);box-shadow:0 0 0 4px rgba(248,90,3,.15)}
+.inp input[type=date]{color-scheme:light}
+.inp input[type=date]::-webkit-calendar-picker-indicator{opacity:.55;cursor:pointer}
 .pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--mut);font-weight:800;pointer-events:none}
 .has-pre input{padding-left:34px}
 .has-eye input{padding-right:52px}
@@ -110,6 +112,9 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 .meter i{height:5px;border-radius:4px;background:var(--line);transition:background .3s}
 .meter[data-level="1"] i:nth-child(-n+1),.meter[data-level="2"] i:nth-child(-n+2),.meter[data-level="3"] i:nth-child(-n+3),.meter[data-level="4"] i:nth-child(-n+4){background:var(--o)}
 .mlabel{font-size:12px;font-weight:700;color:var(--mut);margin-top:6px;min-height:15px}
+.hint{font-size:12.5px;font-weight:700;color:var(--mut);margin-top:6px;min-height:16px;line-height:1.35}
+.hint.ok{color:var(--o3)}
+.hint.bad{color:#C0261B}
 
 .check{position:relative;display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--ink);cursor:pointer}
 .check input{position:absolute;opacity:0;width:22px;height:22px}
@@ -247,6 +252,11 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
           <div class="inp has-pre"><span class="pre">@</span><input id="suPseudo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ton_pseudo" maxlength="20"></div>
         </div>
         <div class="fld">
+          <label for="suBirth">Date de naissance</label>
+          <div class="inp"><input id="suBirth" type="date" autocomplete="bday" aria-describedby="suAge"></div>
+          <div class="hint" id="suAge" aria-live="polite"></div>
+        </div>
+        <div class="fld">
           <label for="suEmail">Email</label>
           <div class="inp"><input id="suEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="ton@email.com" maxlength="254"></div>
         </div>
@@ -291,6 +301,11 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
     <div class="fld" id="shPseudoWrap">
       <label for="shPseudo">Pseudo (optionnel)</label>
       <div class="inp has-pre"><span class="pre">@</span><input id="shPseudo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ton_pseudo" maxlength="20"></div>
+    </div>
+    <div class="fld" id="shBirthWrap" hidden>
+      <label for="shBirth">Date de naissance</label>
+      <div class="inp"><input id="shBirth" type="date" autocomplete="bday" aria-describedby="shAge"></div>
+      <div class="hint" id="shAge" aria-live="polite"></div>
     </div>
     <label class="check" id="shTermsWrap">
       <input type="checkbox" id="shTerms">
@@ -358,6 +373,9 @@ const TEXT = {
   banned: 'Ce compte a été suspendu.',
   username_taken: 'Ce pseudo est déjà pris. Choisis-en un autre.',
   username_invalid: 'Pseudo invalide : 3 à 20 caractères, minuscules, chiffres et _.',
+  birth_required: 'Ajoute ta date de naissance pour continuer.',
+  birth_invalid: 'Date de naissance invalide.',
+  age_too_young: 'Tu dois avoir au moins 13 ans pour utiliser Lisolo.',
   too_many_requests: 'Trop de requêtes. Réessaie dans quelques minutes.',
   forbidden: 'Requête refusée. Recharge la page.',
   invalid_token: 'Connexion invalide. Réessaie.',
@@ -419,8 +437,9 @@ function setSheetMsg(text) {
 
 function syncGates() {
   const ok = $('#terms').checked;
+  const birthOk = !birthIssue($('#suBirth').value);
   $('#loginBtn').disabled = busy;
-  $('#signupBtn').disabled = !ok || busy;
+  $('#signupBtn').disabled = !ok || !birthOk || busy;
   $('#googleLogin').disabled = !fb || busy;
   $('#googleSignup').disabled = !ok || !fb || busy;
 }
@@ -518,9 +537,9 @@ function readConsent() {
     return null;
   }
 }
-function saveConsent(email, pseudo) {
+function saveConsent(email, pseudo, birthDate) {
   try {
-    localStorage.setItem('lisolo_signup', JSON.stringify({ e: email, u: pseudo || '', t: termsVersion }));
+    localStorage.setItem('lisolo_signup', JSON.stringify({ e: email, u: pseudo || '', b: birthDate || '', t: termsVersion }));
   } catch (e) {}
 }
 function clearConsent() {
@@ -530,11 +549,66 @@ function clearConsent() {
 }
 function consentFor(email) {
   const c = readConsent();
-  if (c && c.e === email && c.t === termsVersion) return { acceptTerms: true, username: c.u || undefined };
+  if (c && c.e === email && c.t === termsVersion) return { acceptTerms: true, username: c.u || undefined, birthDate: c.b || undefined };
   return { acceptTerms: false };
 }
 
 const normPseudo = (v) => String(v || '').trim().toLowerCase().replace(/^@/, '');
+
+const MIN_AGE = 13;
+const MAX_AGE = 110;
+
+function isoDate(d) {
+  const p = (n) => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+
+function ageFrom(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ''))) return null;
+  const parts = iso.split('-').map(Number);
+  const y = parts[0], m = parts[1], d = parts[2];
+  const dt = new Date(y, m - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+  const now = new Date();
+  let age = now.getFullYear() - y;
+  if (now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) age -= 1;
+  if (!isFinite(age) || age < 0 || age > MAX_AGE) return null;
+  return age;
+}
+
+function birthIssue(iso) {
+  if (!iso) return 'Entre ta date de naissance.';
+  const age = ageFrom(iso);
+  if (age === null) return 'Date de naissance invalide.';
+  if (age < MIN_AGE) return 'Tu dois avoir au moins ' + MIN_AGE + ' ans.';
+  return '';
+}
+
+function syncBirthHints() {
+  [['#suBirth', '#suAge'], ['#shBirth', '#shAge']].forEach(function (pair) {
+    const input = $(pair[0]);
+    const hint = $(pair[1]);
+    if (!input || !hint) return;
+    const v = input.value;
+    if (!v) { hint.textContent = ''; hint.className = 'hint'; return; }
+    const issue = birthIssue(v);
+    if (issue) { hint.textContent = issue; hint.className = 'hint bad'; return; }
+    hint.textContent = 'Tu as ' + ageFrom(v) + ' ans.';
+    hint.className = 'hint ok';
+  });
+}
+
+(function initBirthBounds() {
+  const now = new Date();
+  const max = isoDate(new Date(now.getFullYear() - MIN_AGE, now.getMonth(), now.getDate()));
+  const min = isoDate(new Date(now.getFullYear() - MAX_AGE, now.getMonth(), now.getDate()));
+  ['#suBirth', '#shBirth'].forEach(function (s) {
+    const el = $(s);
+    if (!el) return;
+    el.max = max;
+    el.min = min;
+  });
+})();
 
 function celebrate() {
   const o = $('#done');
@@ -558,15 +632,19 @@ async function finishSession(input) {
   try {
     await api('/api/auth/session', {
       method: 'POST',
-      body: { idToken, acceptTerms: !!input.acceptTerms, username: input.username },
+      body: { idToken, acceptTerms: !!input.acceptTerms, username: input.username, birthDate: input.birthDate },
     });
   } catch (e) {
     if (e.code === 'terms_required') {
-      openSheet({ needTerms: true, needPseudo: true, error: '' });
+      openSheet({ needTerms: true, needPseudo: true, birthDate: input.birthDate || $('#suBirth').value || '', error: '' });
+      return;
+    }
+    if (e.code === 'birth_required' || e.code === 'birth_invalid' || e.code === 'age_too_young') {
+      openSheet({ needTerms: false, needPseudo: false, needBirth: true, birthDate: input.birthDate || $('#suBirth').value || '', error: explain(e) });
       return;
     }
     if (e.code === 'username_taken' || e.code === 'username_invalid') {
-      openSheet({ needTerms: false, needPseudo: true, error: explain(e) });
+      openSheet({ needTerms: false, needPseudo: true, birthDate: input.birthDate || $('#suBirth').value || '', error: explain(e) });
       return;
     }
     throw e;
@@ -579,14 +657,17 @@ async function finishSession(input) {
 function openSheet(o) {
   sheetState = o;
   $('#shPseudoWrap').hidden = !o.needPseudo;
+  $('#shBirthWrap').hidden = !o.needBirth;
   $('#shTermsWrap').hidden = !o.needTerms;
   $('#shTerms').checked = false;
   $('#shPseudo').value = '';
+  $('#shBirth').value = o.birthDate || $('#suBirth').value || '';
+  syncBirthHints();
   setSheetMsg(o.error);
   sheet.hidden = false;
   requestAnimationFrame(() => {
     sheet.classList.add('open');
-    const first = o.needPseudo ? $('#shPseudo') : $('#shTerms');
+    const first = o.needBirth ? $('#shBirth') : (o.needPseudo ? $('#shPseudo') : $('#shTerms'));
     setTimeout(() => first.focus({ preventScroll: true }), 250);
   });
 }
@@ -620,6 +701,11 @@ async function confirmSheet() {
   const pseudo = normPseudo($('#shPseudo').value);
   if (s.needTerms && !$('#shTerms').checked) return setSheetMsg(TEXT.terms_required);
   if (s.needPseudo && pseudo && !PSEUDO_RE.test(pseudo)) return setSheetMsg(TEXT.username_invalid);
+  const birthDate = $('#shBirth').value;
+  if (s.needBirth) {
+    const issue = birthIssue(birthDate);
+    if (issue) return setSheetMsg(issue);
+  }
   const btn = $('#shConfirm');
   busy = true;
   btn.classList.add('loading');
@@ -634,7 +720,7 @@ async function confirmSheet() {
     const idToken = await user.getIdToken();
     await api('/api/auth/session', {
       method: 'POST',
-      body: { idToken, acceptTerms: true, username: pseudo || undefined },
+      body: { idToken, acceptTerms: true, username: pseudo || undefined, birthDate: birthDate || undefined },
     });
     closeSheet();
     clearConsent();
@@ -645,6 +731,10 @@ async function confirmSheet() {
       closeSheet();
       await signOutSafe();
       showMsg(explain(e));
+    } else if (e.code === 'birth_required' || e.code === 'birth_invalid' || e.code === 'age_too_young') {
+      sheetState.needBirth = true;
+      $('#shBirthWrap').hidden = false;
+      setSheetMsg(explain(e));
     } else {
       setSheetMsg(explain(e));
     }
@@ -685,10 +775,16 @@ async function onSignup(ev) {
   if (!EMAIL_RE.test(email)) return showMsg(TEXT['auth/invalid-email']);
   if (pass.length < 8 || pass.length > 128) return showMsg('Le mot de passe doit contenir au moins 8 caractères.');
   if (pseudo && !PSEUDO_RE.test(pseudo)) return showMsg(TEXT.username_invalid);
+  const birthDate = $('#suBirth').value;
+  const birthErr = birthIssue(birthDate);
+  if (birthErr) {
+    $('#suBirth').focus();
+    return showMsg(birthErr);
+  }
   if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
   await run($('#signupBtn'), async () => {
     const cred = await fb.m.createUserWithEmailAndPassword(fb.auth, email, pass);
-    saveConsent(email, pseudo);
+    saveConsent(email, pseudo, birthDate);
     try {
       await fb.m.sendEmailVerification(cred.user);
     } catch (e) {
@@ -707,6 +803,11 @@ function onGoogle(fromSignup) {
     if (!$('#terms').checked) return showMsg(TEXT.terms_required);
     const p = normPseudo($('#suPseudo').value);
     if (p && !PSEUDO_RE.test(p)) return showMsg(TEXT.username_invalid);
+    const birthErr = birthIssue($('#suBirth').value);
+    if (birthErr) {
+      $('#suBirth').focus();
+      return showMsg(birthErr);
+    }
   }
   const provider = new fb.m.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
@@ -714,7 +815,7 @@ function onGoogle(fromSignup) {
     const cred = await fb.m.signInWithPopup(fb.auth, provider);
     const email = String(cred.user.email || '').toLowerCase();
     const input = fromSignup
-      ? { acceptTerms: true, username: normPseudo($('#suPseudo').value) || undefined }
+      ? { acceptTerms: true, username: normPseudo($('#suPseudo').value) || undefined, birthDate: $('#suBirth').value || undefined }
       : consentFor(email);
     await finishSession(input);
   });
@@ -771,6 +872,19 @@ $('#suPass').addEventListener('input', (e) => {
 $('#terms').addEventListener('change', () => {
   clearMsg();
   syncGates();
+});
+
+['#suBirth', '#shBirth'].forEach((sel) => {
+  const el = $(sel);
+  el.addEventListener('input', () => {
+    clearMsg();
+    syncBirthHints();
+    syncGates();
+  });
+  el.addEventListener('change', () => {
+    syncBirthHints();
+    syncGates();
+  });
 });
 
 $('#loginPanel').addEventListener('submit', onLogin);
