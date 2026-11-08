@@ -59,8 +59,9 @@ html.rdy .rv:not(.in){opacity:0;transform:translateY(26px)}
 @media(max-width:380px){.nl{display:none}.nb{padding:10px 13px;font-size:13.5px}}
 
 /* burger */
-.burger{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;flex:none;transition:background .2s;position:relative}
-.burger:hover{background:rgba(255,255,255,.14)}
+.burger{width:46px;height:46px;margin-left:2px;border-radius:14px;display:grid;place-items:center;align-content:center;flex:none;transition:background .2s;position:relative;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4)}
+@media(min-width:900px){.burger,.scrim,.drawer{display:none!important}}
+.burger:hover{background:rgba(255,255,255,.28)}
 .burger span{display:block;width:22px;height:2.4px;border-radius:2px;background:#fff;transition:transform .32s var(--ease),opacity .2s}
 .burger span+span{margin-top:5px}
 .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7.4px) rotate(45deg)}
@@ -320,9 +321,6 @@ html.rdy .hl .ln:nth-child(3)>span{animation-delay:.24s}
 
 <header class="nav" id="nav">
   <div class="nav-in">
-    <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="drawer">
-      <span></span><span></span><span></span>
-    </button>
     <a class="brand" href="/" aria-label="Lisolo, accueil"><span class="logo-s" aria-hidden="true"></span><span>Lisolo</span></a>
     <nav class="links" aria-label="Sections">
       <a href="#how">Comment ça marche</a>
@@ -334,6 +332,9 @@ html.rdy .hl .ln:nth-child(3)>span{animation-delay:.24s}
       <a class="np" href="#pricing">Premium</a>
       <a class="nl" href="/login">Connexion</a>
       <a class="nb" href="/login#signup">Commencer</a>
+      <button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="drawer">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
@@ -677,6 +678,9 @@ html.rdy .hl .ln:nth-child(3)>span{animation-delay:.24s}
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
+  window.addEventListener('resize', function () {
+    if (window.innerWidth >= 900 && drawer.classList.contains('on')) closeDrawer();
+  }, { passive: true });
   window.addEventListener('scroll', syncChrome, { passive: true });
   syncChrome();
 
