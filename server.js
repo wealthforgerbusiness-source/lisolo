@@ -15,6 +15,8 @@ const PORT = Number(process.env.PORT) || 10000;
 const TERMS_VERSION = String(process.env.TERMS_VERSION || '1');
 const SESSION_MS = 14 * 24 * 60 * 60 * 1000;
 const DAY = 86400000;
+const MIN_AGE = 13;
+const MAX_AGE = 110;
 const COOKIE = 'lisolo_session';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
@@ -116,6 +118,7 @@ const userCache = new TTLCache(30000, 3000);
 const profileCache = new TTLCache(120000, 2000);
 const quizCache = new TTLCache(60000, 1000);
 const adminCache = new TTLCache(60000, 10);
+const ageCache = new TTLCache(120000, 1);
 
 const clean = (v) =>
   String(v)
@@ -143,6 +146,36 @@ const esc = (s) =>
 const shifted = () => new Date(Date.now() + 3600000).toISOString();
 const monthKey = () => shifted().slice(0, 7);
 const dayKey = () => shifted().slice(0, 10);
+
+const BIRTH_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function ageFromBirth(raw) {
+  const iso = typeof raw === 'string' ? raw.trim() : '';
+  if (!BIRTH_RE.test(iso)) return null;
+  const y = Number(iso.slice(0, 4));
+  const m = Number(iso.slice(5, 7));
+  const d = Number(iso.slice(8, 10));
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return null;
+  const today = shifted().slice(0, 10);
+  const ty = Number(today.slice(0, 4));
+  const tm = Number(today.slice(5, 7));
+  const td = Number(today.slice(8, 10));
+  let age = ty - y;
+  if (tm < m || (tm === m && td < d)) age -= 1;
+  if (age < 0 || age > MAX_AGE) return null;
+  return age;
+}
+
+function validateBirth(raw) {
+  if (raw === undefined || raw === null || raw === '') return { error: 'birth_required' };
+  const iso = typeof raw === 'string' ? raw.trim() : '';
+  if (!BIRTH_RE.test(iso)) return { error: 'birth_invalid' };
+  const age = ageFromBirth(iso);
+  if (age === null) return { error: 'birth_invalid' };
+  if (age < MIN_AGE) return { error: 'age_too_young' };
+  return { iso, age };
+}
 
 function getIp(req) {
   const cf = req.get('cf-connecting-ip');
@@ -276,6 +309,8 @@ function meView(u) {
     displayName: u.displayName,
     username: u.username,
     photo: u.photo || '',
+    birthDate: u.birthDate || '',
+    age: ageFromBirth(u.birthDate),
     plan: prem ? 'premium' : 'free',
     planExpiresAt: prem ? u.planExpiresAt : 0,
     limits: prem ? LIMITS.premium : LIMITS.free,
@@ -301,7 +336,7 @@ function genUsername(base) {
   return b + crypto.randomInt(1000, 99999);
 }
 
-async function createProfile(decoded, input) {
+async function createProfile(decoded, input, birthDate) {
   const uid = decoded.uid;
   const email = String(decoded.email).toLowerCase();
   const displayName = clean(String(decoded.name || email.split('@')[0])).replace(/\s+/g, ' ').slice(0, 40) || 'Utilisateur';
@@ -327,6 +362,7 @@ async function createProfile(decoded, input) {
           planExpiresAt: 0,
           createdAt: now,
           terms: { version: TERMS_VERSION, at: now },
+          birthDate: birthDate || '',
           banned: false,
           unread: 0,
           quizCount: 0,
@@ -551,12 +587,20 @@ app.post(
     let isNew = false;
     if (!snap.exists) {
       if (!accepted) fail(409, 'terms_required');
-      isNew = await createProfile(decoded, b);
+      const birth = validateBirth(b.birthDate);
+      if (birth.error) fail(400, birth.error);
+      isNew = await createProfile(decoded, b, birth.iso);
       userCache.del(decoded.uid);
       if (isNew) bump('users');
     } else {
       const u = snap.data();
       if (u.banned) fail(403, 'banned');
+      if (ageFromBirth(u.birthDate) === null) {
+        const birth = validateBirth(b.birthDate);
+        if (birth.error) fail(400, birth.error);
+        await userRef(decoded.uid).update({ birthDate: birth.iso });
+        userCache.del(decoded.uid);
+      }
       if ((u.terms && u.terms.version) !== TERMS_VERSION) {
         if (!accepted) fail(409, 'terms_required');
         await userRef(decoded.uid).update({ terms: { version: TERMS_VERSION, at: Date.now() } });
@@ -881,10 +925,11 @@ app.get(
     if (!ID_RE.test(req.params.id)) fail(404, 'not_found');
     const z = await getQuiz(req.params.id);
     if (!z || !z.active) fail(404, 'not_found');
+    const owner = z.ownerUid ? await withTimeout(getUser(z.ownerUid), 900, null) : null;
     res.json({
       id: z.id,
       title: z.title,
-      ownerName: z.ownerName,
+      ownerName: (owner && owner.displayName) || z.ownerName,
       questions: z.questions.map((q) => ({ q: q.q, options: q.options })),
     });
   })
@@ -966,6 +1011,73 @@ app.get(
   })
 );
 
+const AGE_BUCKETS = [
+  { label: '13–17 ans', min: 13, max: 17 },
+  { label: '18–24 ans', min: 18, max: 24 },
+  { label: '25–34 ans', min: 25, max: 34 },
+  { label: '35–44 ans', min: 35, max: 44 },
+  { label: '45–54 ans', min: 45, max: 54 },
+  { label: '55 ans et +', min: 55, max: MAX_AGE },
+];
+
+async function collectAges() {
+  const list = [];
+  let missing = 0;
+  let last = null;
+  let truncated = false;
+  for (let page = 0; page < 40; page++) {
+    let q = db
+      .collection('users')
+      .orderBy(admin.firestore.FieldPath.documentId())
+      .limit(500);
+    if (last) q = q.startAfter(last);
+    const snap = await q.get();
+    snap.docs.forEach((d) => {
+      const age = ageFromBirth(d.data().birthDate);
+      if (age === null) missing += 1;
+      else list.push(age);
+    });
+    if (snap.size < 500) break;
+    last = snap.docs[snap.docs.length - 1];
+    if (page === 39) truncated = true;
+  }
+  const known = list.length;
+  const sum = list.reduce((a, b) => a + b, 0);
+  const sorted = list.slice().sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  const median = known ? (known % 2 ? sorted[mid] : Math.round(((sorted[mid - 1] + sorted[mid]) / 2) * 10) / 10) : 0;
+  const counts = new Map();
+  for (const age of list) counts.set(age, (counts.get(age) || 0) + 1);
+  return {
+    total: known + missing,
+    known,
+    missing,
+    average: known ? Math.round((sum / known) * 10) / 10 : 0,
+    median,
+    minors: list.filter((a) => a < 18).length,
+    buckets: AGE_BUCKETS.map((b) => ({
+      label: b.label,
+      min: b.min,
+      max: b.max,
+      count: list.filter((a) => a >= b.min && a <= b.max).length,
+    })),
+    ages: [...counts.entries()].sort((a, b) => a[0] - b[0]).map(([age, count]) => ({ age, count })),
+    truncated,
+    generatedAt: Date.now(),
+  };
+}
+
+app.get(
+  '/api/admin/ages',
+  limiter(60000, 20),
+  ...requireAdmin,
+  wrap(async (req, res) => {
+    const hit = ageCache.get('ages');
+    if (hit) return res.json(hit);
+    return res.json(ageCache.set('ages', await collectAges()));
+  })
+);
+
 app.get(
   '/api/admin/users',
   limiter(60000, 60),
@@ -988,6 +1100,7 @@ app.get(
         email: x.email,
         displayName: x.displayName,
         username: x.username,
+        age: ageFromBirth(x.birthDate),
         plan: isPremium(x) ? 'premium' : 'free',
         planExpiresAt: x.planExpiresAt || 0,
         createdAt: x.createdAt,
@@ -1069,12 +1182,16 @@ app.get(
   limiter(60000, 60),
   wrap(async (req, res) => {
     const z = ID_RE.test(req.params.id) ? await withTimeout(getQuiz(req.params.id), 1500, null) : null;
+    const owner = z && z.active && z.ownerUid ? await withTimeout(getUser(z.ownerUid), 900, null) : null;
+    const ownerName = (owner && owner.displayName) || (z && z.ownerName) || '';
     const b = baseUrl(req);
     const meta =
       z && z.active
         ? {
-            title: `Réponds au quiz « ${z.title} »`,
-            description: `${z.title}. Tu me connais vraiment ? Teste-toi sur Lisolo.`,
+            title: ownerName ? `Quiz de ${ownerName} : ${z.title}` : `Réponds au quiz « ${z.title} »`,
+            description: ownerName
+              ? `${ownerName} te défie : « ${z.title} ». Tu me connais vraiment ? Teste-toi sur Lisolo.`
+              : `${z.title}. Tu me connais vraiment ? Teste-toi sur Lisolo.`,
             image: b + '/images/og-quiz.png',
             url: `${b}/q/${z.id}`,
           }
