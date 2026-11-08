@@ -216,7 +216,7 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
     <div class="card" id="card">
       <header class="ch">
         <h2>Ton espace Lisolo</h2>
-        <p>Reçois des messages anonymes et lance tes quiz.</p>
+        <p id="chSub">Reçois des messages anonymes et lance tes quiz.</p>
       </header>
 
       <div class="tabs" role="tablist">
@@ -242,7 +242,7 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
         </div>
         <div class="row"><button class="lnk" type="button" id="forgot">Mot de passe oublié ?</button></div>
         <button class="btn pri" type="submit" id="loginBtn">Se connecter</button>
-        <div class="or gwrap"><span>ou</span></div>
+        <div class="or gwrap"><span>ou avec Google (facultatif)</span></div>
         <button class="btn sec gwrap" type="button" id="googleLogin" disabled><svg class="ic"><use href="#i-google"/></svg>Continuer avec Google</button>
       </form>
 
@@ -275,7 +275,7 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
           <span>J’accepte les <a href="/legal" target="_blank" rel="noopener">conditions d’utilisation</a> et la <a href="/legal" target="_blank" rel="noopener">politique de confidentialité</a>.</span>
         </label>
         <button class="btn pri" type="submit" id="signupBtn" disabled>Créer mon compte</button>
-        <div class="or gwrap"><span>ou</span></div>
+        <div class="or gwrap"><span>ou avec Google (facultatif)</span></div>
         <button class="btn sec gwrap" type="button" id="googleSignup" disabled><svg class="ic"><use href="#i-google"/></svg>S’inscrire avec Google</button>
       </form>
 
@@ -484,6 +484,11 @@ function showPanel(id) {
   clearMsg();
 }
 
+const SUBS = {
+  login: 'Connecte-toi avec ton email et ton mot de passe. Google est facultatif : l’email marche sur tous les téléphones, iPhone compris.',
+  signup: 'Pas de compte Google ? Pas de souci : crée ton compte avec ton email et un mot de passe. Ça marche sur iPhone comme sur Android.',
+};
+
 function setMode(m) {
   mode = m;
   $('#ind').style.transform = m === 'login' ? 'translateX(0)' : 'translateX(100%)';
@@ -493,6 +498,7 @@ function setMode(m) {
     t.setAttribute('aria-selected', String(on));
   });
   showPanel(m === 'login' ? 'loginPanel' : 'signupPanel');
+  $('#chSub').textContent = SUBS[m];
   history.replaceState(null, '', location.pathname + location.search + (m === 'signup' ? '#signup' : ''));
 }
 
@@ -957,6 +963,11 @@ $('#verifyBack').addEventListener('click', async () => {
     n.textContent = embedded
       ? 'Ce navigateur intégré bloque la connexion Google. Utilise ton email, ou ouvre ce lien dans Chrome ou Safari.'
       : 'Sur l’application installée sur iPhone, connecte-toi avec ton email et ton mot de passe.';
+    n.className = 'msg info';
+    n.hidden = false;
+  } else if (/iPhone|iPad|iPod/i.test(ua)) {
+    const n = $('#notice');
+    n.textContent = 'Tu as un iPhone ? Utilise ton email et ton mot de passe ci-dessous : c’est fait pour toi aussi. Pas besoin de compte Google.';
     n.className = 'msg info';
     n.hidden = false;
   }
