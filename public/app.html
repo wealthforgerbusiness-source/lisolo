@@ -171,7 +171,7 @@ button.nt:active{transform:scale(.99)}
 .hero h2{position:relative;font-size:26px;font-weight:800;letter-spacing:-.01em;margin:2px 0 16px}
 .linkbox{position:relative;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);border-radius:16px;padding:6px 6px 6px 16px;margin-bottom:12px}
 .lt{flex:1;min-width:0;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hact{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hact{position:relative;display:grid;grid-template-columns:1fr;gap:10px}
 .hact .btn{height:46px}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -409,6 +409,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></symbol>
     <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M16 8l4 4-4 4M20 12H9"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></symbol>
+    <symbol id="i-reply" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
     <symbol id="i-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></symbol>
     <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
@@ -1005,14 +1006,10 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
     openSheet(function (card, close) {
       var shareBtn = h('button', { class: 'btn pri block', type: 'button' }, ic('share'), 'Partager le lien');
       shareBtn.addEventListener('click', function () { shareLink(url, shareTextFor(kind)); });
-      var imgBtn = h('button', { class: 'btn soft block', type: 'button' }, ic('image'), 'Partager avec l’image');
-      imgBtn.addEventListener('click', function () { shareLinkImage(kind, imgBtn); });
       var copyBtn = h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Copier le lien' }, ic('copy'));
       copyBtn.addEventListener('click', function () { copyLink(url); });
-      var waBtn = h('button', { class: 'btn ghost', type: 'button' }, ic('send'), 'WhatsApp');
+      var waBtn = h('button', { class: 'btn ghost block', type: 'button' }, ic('send'), 'WhatsApp');
       waBtn.addEventListener('click', function () { whatsapp(shareTextFor(kind), url); });
-      var dlBtn = h('button', { class: 'btn ghost', type: 'button' }, ic('download'), 'Image');
-      dlBtn.addEventListener('click', function () { downloadShareImage(kind, 'story', dlBtn); });
       add(card, [
         h('h3', { text: cfg.label }),
         h('img', { class: 'shareprev', src: cfg.image, alt: 'Aperçu ' + cfg.title, width: '1200', height: '630' }),
@@ -1025,8 +1022,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
           h('span', { class: 'lt', text: location.host + cfg.path() }),
           copyBtn),
         shareBtn,
-        imgBtn,
-        h('div', { class: 'row' }, waBtn, dlBtn),
+        waBtn,
         h('button', { class: 'btn ghost block', type: 'button', on: { click: close } }, 'Fermer')
       ]);
     });
@@ -1069,8 +1065,6 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
 
     var heroShare = h('button', { class: 'btn wh', type: 'button' }, ic('share'), 'Partager');
     heroShare.addEventListener('click', function () { linkSheet('msg'); });
-    var heroImg = h('button', { class: 'btn glass', type: 'button' }, ic('image'), 'Image');
-    heroImg.addEventListener('click', function () { shareLinkImage('msg', heroImg); });
     var hero = h('section', { class: 'hero' },
       h('div', { class: 'rg', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
       h('div', { class: 'hello', text: 'Salut ' + first }),
@@ -1078,7 +1072,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
       h('div', { class: 'linkbox' },
         h('span', { class: 'lt', text: location.host + '/u/' + me.username + '/' }),
         h('button', { class: 'iconbtn wt', type: 'button', 'aria-label': 'Copier le lien', on: { click: function () { copyLink(link); } } }, ic('copy'))),
-      h('div', { class: 'hact' }, heroShare, heroImg));
+      h('div', { class: 'hact' }, heroShare));
 
     var stats = h('div', { class: 'stats' },
       stat('Non lus', me.unread || 0, '', function () { go('messages'); }),
@@ -1359,7 +1353,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
       a.click();
       a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-      toast('Image enregistrée. Publie-la en statut.');
+      toast('Image enregistrée. Publie-la en statut sur WhatsApp, Instagram, Snapchat, Facebook…');
     } catch (e) {
       toast('Impossible de créer l’image.', 'err');
     }
@@ -1375,7 +1369,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
         onGone();
       }, 250);
     }
-    var shareBtn = h('button', { class: 'btn soft', type: 'button' }, ic('image'), 'Partager');
+    var shareBtn = h('button', { class: 'btn pri', type: 'button' }, ic('reply'), 'Répondre');
     shareBtn.addEventListener('click', function () { shareStory(m, shareBtn); });
     var blockBtn = h('button', { class: 'btn ghost', type: 'button' }, ic('ban'), 'Bloquer');
     blockBtn.addEventListener('click', async function () {
