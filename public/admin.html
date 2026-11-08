@@ -808,6 +808,7 @@ a{color:inherit}
         btn.classList.remove('loading');
         m.value = '';
         sync();
+        loadHist();
         var n = (d && d.sent) || 0;
         toast('Publiée dans l’app · push envoyé à ' + nf.format(n) + ' appareil' + (n > 1 ? 's' : '') + (d && d.failed ? ' · ' + d.failed + ' échec(s)' : ''));
       } catch (e) {
@@ -815,6 +816,35 @@ a{color:inherit}
         toast(explain(e), 'err');
       }
     });
+
+    var histBox = h('div', { style: 'display:grid;gap:10px' });
+    async function loadHist() {
+      try {
+        var d = await api('/api/admin/announcements');
+        histBox.textContent = '';
+        if (!d.items.length) { histBox.appendChild(h('p', { class: 'nlead', text: 'Aucune notification envoyée pour le moment.' })); return; }
+        d.items.forEach(function (it) {
+          var del = h('button', { class: 'btn dang sm', type: 'button' }, 'Supprimer');
+          var row = h('article', { class: 'urow' },
+            h('div', { class: 'ui' }, h('b', { text: it.title }), h('span', { text: it.body })),
+            h('div', { class: 'um' }, h('span', { text: fmtDate(it.createdAt) }), h('span', { text: 'lien : ' + it.url })),
+            h('div', { class: 'ua' }, del));
+          del.addEventListener('click', async function () {
+            if (!(await ask('Supprimer cette notification ?', 'Elle disparaîtra de la liste des utilisateurs. Les alertes déjà reçues sur les téléphones ne peuvent pas être rappelées.', 'Supprimer', true))) return;
+            del.classList.add('loading');
+            try {
+              await api('/api/admin/announcements/' + it.id, { method: 'DELETE' });
+              row.remove();
+              toast('Notification supprimée');
+            } catch (e) { del.classList.remove('loading'); toast(explain(e), 'err'); }
+          });
+          histBox.appendChild(row);
+        });
+      } catch (e) {
+        histBox.textContent = '';
+        histBox.appendChild(h('p', { class: 'nlead', text: explain(e) }));
+      }
+    }
 
     add(host, [
       h('div', { class: 'sec-h' }, h('h2', { text: 'Envoyer une notification' })),
@@ -826,8 +856,11 @@ a{color:inherit}
           h('div', null, h('label', { class: 'lbl', for: 'nurl', text: 'Lien ouvert au clic' }), u, h('div', { style: 'height:10px' }), quick),
           btn),
         h('div', null, h('div', { class: 'npl', text: 'Aperçu' }),
-          h('div', { class: 'npv' }, h('span', { class: 'npi' }, ic('bell')), h('div', { class: 'npt' }, pt, pb))))
+          h('div', { class: 'npv' }, h('span', { class: 'npi' }, ic('bell')), h('div', { class: 'npt' }, pt, pb)))),
+      h('div', { class: 'sec-h', style: 'margin-top:26px' }, h('h2', { text: 'Notifications envoyées' })),
+      histBox
     ]);
+    loadHist();
   }
 
   function skeletonPage() {
