@@ -132,6 +132,7 @@ class TTLCache {
 }
 
 const userCache = new TTLCache(30000, 3000);
+const annCache = new TTLCache(15000, 5);
 const profileCache = new TTLCache(120000, 2000);
 const quizCache = new TTLCache(60000, 1000);
 const adminCache = new TTLCache(60000, 10);
@@ -1045,7 +1046,6 @@ app.post(
   limiter(60000, 5),
   ...requireAdmin,
   wrap(async (req, res) => {
-    if (!PUSH_ON) fail(503, 'push_unavailable');
     const b = body(req);
     const title = line(b.title, 1, 60, 'notify_invalid');
     const text = line(b.body, 2, 200, 'notify_invalid');
@@ -1054,11 +1054,16 @@ app.post(
     const relative = url.startsWith('/') && !url.startsWith('//');
     if (url.length > 300 || /\s/.test(url) || !(relative || /^https:\/\/\S+$/i.test(url))) fail(400, 'notify_invalid');
     const payload = JSON.stringify({ title, body: text, url, tag: 'lisolo-' + Date.now() });
+    // 1) Enregistre la notification : c'est elle qui alimente la cloche + le compteur dans l'app
+    const annRef = db.collection('announcements').doc();
+    await annRef.set({ title, body: text, url, createdAt: Date.now() });
+    annCache.del('list');
+    // 2) Envoie ensuite la notification push (si les clés VAPID sont configurées)
     let sent = 0;
     let failed = 0;
     let removed = 0;
     let last = null;
-    for (let page = 0; page < 100; page++) {
+    for (let page = 0; PUSH_ON && page < 100; page++) {
       let q = db.collection('pushSubs').orderBy(admin.firestore.FieldPath.documentId()).limit(200);
       if (last) q = q.startAfter(last);
       const snap = await q.get();
@@ -1083,7 +1088,40 @@ app.post(
       if (snap.size < 200) break;
       last = snap.docs[snap.docs.length - 1];
     }
-    res.json({ ok: true, sent, failed, removed });
+    res.json({ ok: true, saved: true, push: PUSH_ON, sent, failed, removed });
+  })
+);
+
+app.get(
+  '/api/notifications',
+  limiter(60000, 60),
+  requireAuth,
+  wrap(async (req, res) => {
+    const u = req.user;
+    const seenAt = Number(u.notifSeenAt) || Number(u.createdAt) || 0;
+    let items = annCache.get('list');
+    if (!items) {
+      const snap = await db.collection('announcements').orderBy('createdAt', 'desc').limit(20).get();
+      items = annCache.set(
+        'list',
+        snap.docs.map((d) => {
+          const x = d.data();
+          return { id: d.id, title: x.title, body: x.body, url: x.url || '/app', createdAt: x.createdAt };
+        })
+      );
+    }
+    res.json({ items, unseen: items.filter((i) => i.createdAt > seenAt).length, seenAt });
+  })
+);
+
+app.post(
+  '/api/notifications/seen',
+  limiter(60000, 60),
+  requireAuth,
+  wrap(async (req, res) => {
+    await userRef(req.user.uid).update({ notifSeenAt: Date.now() });
+    userCache.del(req.user.uid);
+    res.json({ ok: true });
   })
 );
 
