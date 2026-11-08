@@ -37,3 +37,43 @@ self.addEventListener('fetch', (event) => {
     )
   );
 });
+
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { body: event.data ? event.data.text() : '' };
+  }
+  const title = String(data.title || 'Lisolo').slice(0, 80);
+  const options = {
+    body: String(data.body || '').slice(0, 240),
+    icon: '/images/icon-192.png',
+    badge: '/images/favicon-48.png',
+    tag: data.tag ? String(data.tag) : undefined,
+    data: { url: typeof data.url === 'string' && data.url ? data.url : '/app' },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const raw = (event.notification.data && event.notification.data.url) || '/app';
+  let target;
+  try {
+    target = new URL(raw, self.location.origin).href;
+  } catch (e) {
+    target = self.location.origin + '/app';
+  }
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const sameOrigin = target.startsWith(self.location.origin);
+      if (sameOrigin) {
+        for (const c of list) {
+          if ('focus' in c && 'navigate' in c) return c.navigate(target).then((w) => (w || c).focus());
+        }
+      }
+      return self.clients.openWindow(target);
+    })
+  );
+});
