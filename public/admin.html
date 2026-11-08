@@ -11,12 +11,12 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
 <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 <style>
-:root{--o:#F85A03;--o2:#D84C00;--o3:#B53E00;--tint:#FFF2EA;--tint2:#FFE3D2;--ink:#1B120D;--mut:#6F615A;--line:#EADFD7;--ease:cubic-bezier(.2,.75,.2,1);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
+:root{--navh:66px;--o:#F85A03;--o2:#D84C00;--o3:#B53E00;--tint:#FFF2EA;--tint2:#FFE3D2;--ink:#1B120D;--mut:#6F615A;--line:#EADFD7;--ease:cubic-bezier(.2,.75,.2,1);--sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#FFFAF6;color:var(--ink);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;line-height:1.45;overflow-x:hidden}
 body.lock{overflow:hidden}
-button,input{font:inherit;color:inherit}
+button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none}
 [hidden]{display:none!important}
 a{color:inherit}
@@ -42,7 +42,9 @@ a{color:inherit}
 .btn.soft{background:var(--tint);color:var(--o3)}
 .btn.soft:hover:not(:disabled){background:var(--tint2)}
 .btn.dang{background:var(--o3);color:#fff}
-.btn.sm{height:36px;padding:0 12px;font-size:13.5px;border-radius:11px}
+.btn.sm{height:44px;padding:0 14px;font-size:14.5px;border-radius:12px}
+.btn.xl{height:60px;padding:0 24px;font-size:18px;border-radius:18px}
+.btn.xl .ic{width:22px;height:22px}
 .btn.block{width:100%}
 .btn.loading{color:transparent!important;pointer-events:none}
 .btn.loading::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
@@ -64,8 +66,9 @@ a{color:inherit}
 .who{font-size:13.5px;font-weight:700;color:var(--mut);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none}
 @media(min-width:760px){.who{display:block}}
 
-.wrap{max-width:1120px;margin:0 auto;padding:20px 16px calc(40px + var(--sb));display:grid;gap:22px}
-.wrap>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0)*70ms)}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px calc(var(--navh) + var(--sb) + 28px);display:grid;gap:22px}
+.pane{display:grid;gap:22px;min-width:0}
+.pane>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0)*70ms);min-width:0}
 .sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .sec-h h2{font-size:20px;font-weight:800;letter-spacing:-.01em}
 .upd{font-size:13px;color:var(--mut);font-weight:600}
@@ -87,7 +90,7 @@ a{color:inherit}
 
 .panel{background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:18px}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
-.seg button{height:36px;padding:0 14px;border-radius:11px;font-weight:800;font-size:13.5px;background:var(--tint);color:var(--o3);transition:background .2s,color .2s}
+.seg button{height:42px;padding:0 16px;border-radius:12px;font-weight:800;font-size:14.5px;background:var(--tint);color:var(--o3);transition:background .2s,color .2s}
 .seg button.on{background:var(--o);color:#fff}
 .chart{margin-top:14px}
 .chart svg{width:100%;height:auto;display:block}
@@ -146,7 +149,7 @@ a{color:inherit}
 .ua{display:flex;gap:8px;flex-wrap:wrap}
 .empty{text-align:center;color:var(--mut);font-weight:600;padding:30px 10px}
 
-.toasts{position:fixed;left:0;right:0;bottom:calc(var(--sb) + 20px);z-index:400;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.toasts{position:fixed;left:0;right:0;bottom:calc(var(--navh) + var(--sb) + 14px);z-index:400;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
 .toast{background:var(--ink);color:#fff;padding:12px 18px;border-radius:14px;font-weight:700;font-size:14.5px;max-width:420px;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(12px);transition:opacity .25s,transform .25s}
 .toast.in{opacity:1;transform:none}
 .toast.err{background:var(--o3)}
@@ -159,6 +162,45 @@ a{color:inherit}
 .sheet-card h3{font-size:21px;font-weight:800}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(min-width:600px){.sheet{align-items:center}.sheet-card{border-radius:26px}}
+
+/* navigation : onglets en bas sur mobile, menu latéral sur PC */
+.main{min-width:0}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border-top:1px solid var(--line);box-shadow:0 -10px 28px rgba(70,20,0,.09);padding-bottom:var(--sb)}
+.nav-brand{display:none}
+.nav-list{display:grid;grid-template-columns:repeat(4,1fr);height:var(--navh)}
+.ni{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;color:var(--mut);font-size:11.5px;font-weight:700;text-decoration:none;transition:color .2s,background .2s}
+.ni .ic{width:25px;height:25px;transition:transform .3s var(--ease)}
+.ni.on{color:var(--o)}
+.ni.on .ic{transform:translateY(-1px) scale(1.1)}
+.ni.on::before{content:"";position:absolute;top:0;left:50%;margin-left:-15px;width:30px;height:4px;border-radius:0 0 4px 4px;background:var(--o)}
+.tabtitle{display:none;font-size:20px;font-weight:800;letter-spacing:-.01em}
+@media(min-width:900px){
+  .nav{top:0;bottom:auto;right:auto;width:248px;height:100dvh;border-top:0;border-right:1px solid var(--line);box-shadow:none;padding:26px 16px;display:flex;flex-direction:column;background:#fff}
+  .nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:23px;color:var(--o);padding:0 12px 22px;text-decoration:none}
+  .nav-list{display:flex;flex-direction:column;height:auto;gap:4px}
+  .ni{flex-direction:row;justify-content:flex-start;gap:14px;height:52px;padding:0 14px;border-radius:14px;font-size:16px}
+  .ni:hover{background:var(--tint)}
+  .ni.on{background:var(--tint);color:var(--o3)}
+  .ni.on::before{top:11px;left:0;margin-left:0;width:4px;height:30px;border-radius:0 4px 4px 0}
+  .main{margin-left:248px}
+  .top .brand,.top .tag{display:none}
+  .tabtitle{display:block}
+  .wrap{padding-bottom:calc(40px + var(--sb))}
+  .toasts{bottom:28px;left:248px}
+}
+
+/* notifications */
+.ta{height:auto;min-height:130px;padding:12px 14px;line-height:1.5;resize:vertical;display:block}
+.cnt{font-size:12.5px;font-weight:700;color:var(--mut);text-align:right;margin-top:6px}
+.nform{display:grid;gap:16px;margin-top:14px}
+.nlead{color:var(--mut);font-size:14.5px;font-weight:600;margin-top:6px}
+.npv{display:flex;gap:12px;align-items:flex-start;background:var(--tint);border:1.5px solid var(--tint2);border-radius:18px;padding:14px}
+.npi{width:40px;height:40px;border-radius:12px;background:var(--o);color:#fff;display:grid;place-items:center;flex:none}
+.npt{min-width:0}
+.npt b{display:block;font-size:15px;overflow-wrap:anywhere}
+.npt span{display:block;font-size:14px;color:var(--mut);font-weight:600;overflow-wrap:anywhere;white-space:pre-wrap}
+.npl{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:8px}
+@media(min-width:900px){.nform{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:start;gap:24px}}
 
 .fail{max-width:420px;margin:18vh auto 0;text-align:center;display:grid;gap:14px;padding:0 20px}
 .fail h2{font-size:24px;font-weight:800}
@@ -176,24 +218,41 @@ a{color:inherit}
     <symbol id="i-ban" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11M12 20V4M19 20v-6"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.3c2.3.7 3.5 2.6 3.5 5.7"/></symbol>
+    <symbol id="i-pie" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9h9"/><path d="M20.5 15A9 9 0 1 1 9 3.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L3 10.5l7 2.5 2.5 7L21 3z"/><path d="M10 13l11-10"/></symbol>
   </defs>
 </svg>
 
 <div class="boot" id="boot" aria-hidden="true"><img src="/images/lisolo-symbole-blanc.png" alt="" width="72" height="68"></div>
 
 <div id="root" hidden>
-  <header class="top">
-    <div class="top-in">
-      <a class="brand" href="/app" aria-label="Retour à l’application"><span class="logo-o" aria-hidden="true"></span><span>Lisolo</span></a>
-      <span class="tag">Admin</span>
-      <span class="sp"></span>
-      <span class="who" id="who"></span>
-      <button class="iconbtn" type="button" id="refresh" aria-label="Actualiser"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg></button>
-      <a class="iconbtn" href="/app" aria-label="Retour à l’application"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></a>
-      <button class="iconbtn" type="button" id="logout" aria-label="Se déconnecter"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg></button>
+  <nav class="nav" id="nav" aria-label="Navigation de l’administration">
+    <a class="nav-brand" href="/app" aria-label="Retour à l’application"><span class="logo-o" aria-hidden="true"></span><span>Lisolo</span></a>
+    <div class="nav-list">
+      <a class="ni" href="#overview" data-tab="overview"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span class="tx">Aperçu</span></a>
+      <a class="ni" href="#users" data-tab="users"><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><span class="tx">Utilisateurs</span></a>
+      <a class="ni" href="#ages" data-tab="ages"><svg class="ic" aria-hidden="true"><use href="#i-pie"/></svg><span class="tx">Âges</span></a>
+      <a class="ni" href="#notify" data-tab="notify"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg><span class="tx">Notifier</span></a>
     </div>
-  </header>
-  <main class="wrap" id="wrap"></main>
+  </nav>
+  <div class="main">
+    <header class="top">
+      <div class="top-in">
+        <a class="brand" href="/app" aria-label="Retour à l’application"><span class="logo-o" aria-hidden="true"></span><span>Lisolo</span></a>
+        <span class="tag">Admin</span>
+        <h1 class="tabtitle" id="tabTitle"></h1>
+        <span class="sp"></span>
+        <span class="who" id="who"></span>
+        <button class="iconbtn" type="button" id="refresh" aria-label="Actualiser"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg></button>
+        <a class="iconbtn" href="/app" aria-label="Retour à l’application"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></a>
+        <button class="iconbtn" type="button" id="logout" aria-label="Se déconnecter"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg></button>
+      </div>
+    </header>
+    <main class="wrap" id="wrap"></main>
+  </div>
 </div>
 
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -223,6 +282,8 @@ a{color:inherit}
     days_invalid: 'Durée invalide (1 à 3650 jours).',
     self_ban: 'Tu ne peux pas te bannir toi-même.',
     bad_request: 'Requête invalide.',
+    notify_invalid: 'Vérifie le titre, le message et le lien (chemin /… ou https://…).',
+    push_unavailable: 'Les notifications ne sont pas configurées sur le serveur.',
     server_error: 'Erreur du serveur. Réessaie dans un instant.'
   };
   function explain(e) { return (e && ERR[e.code]) || 'Une erreur est survenue. Réessaie.'; }
@@ -695,6 +756,63 @@ a{color:inherit}
     loadUsers(true, list, null);
   }
 
+  function notifyPanel(host) {
+    host.textContent = '';
+    var t = h('input', { class: 'inp', type: 'text', id: 'ntitle', maxlength: '60', value: 'Lisolo', autocomplete: 'off' });
+    var m = h('textarea', { class: 'inp ta', id: 'nbody', maxlength: '200', placeholder: 'Ton message…' });
+    var u = h('input', { class: 'inp', type: 'text', id: 'nurl', maxlength: '300', value: '/app', autocomplete: 'off', autocapitalize: 'none', spellcheck: 'false' });
+    var cnt = h('div', { class: 'cnt', text: '0 / 200' });
+    var pt = h('b', { text: 'Lisolo' });
+    var pb = h('span', { text: 'Ton message apparaîtra ici.' });
+    function sync() {
+      pt.textContent = t.value.trim() || 'Lisolo';
+      pb.textContent = m.value.trim() || 'Ton message apparaîtra ici.';
+      cnt.textContent = m.value.length + ' / 200';
+    }
+    t.addEventListener('input', sync);
+    m.addEventListener('input', sync);
+
+    var quick = h('div', { class: 'seg' });
+    [['Accueil', '/app'], ['Messages', '/app#messages'], ['Quiz', '/app#quiz'], ['Premium', '/app#profile']].forEach(function (q) {
+      quick.appendChild(h('button', { type: 'button', on: { click: function () { u.value = q[1]; } } }, q[0]));
+    });
+
+    var btn = h('button', { class: 'btn pri block xl', type: 'button' }, ic('send'), 'Envoyer à tous');
+    btn.addEventListener('click', async function () {
+      var title = t.value.trim();
+      var text = m.value.trim();
+      var url = u.value.trim() || '/app';
+      var okUrl = ((url.charAt(0) === '/' && url.charAt(1) !== '/') || /^https:\/\/\S+$/i.test(url)) && !/\s/.test(url) && url.length <= 300;
+      if (title.length < 1 || title.length > 60 || text.length < 2 || text.length > 200 || !okUrl) { toast(ERR.notify_invalid, 'err'); return; }
+      if (!(await ask('Envoyer à tous les utilisateurs ?', '« ' + title + ' » sera envoyée à tous les appareils abonnés. Cette action est immédiate.', 'Envoyer'))) return;
+      btn.classList.add('loading');
+      try {
+        var d = await api('/api/admin/notify', { method: 'POST', body: { title: title, body: text, url: url } });
+        btn.classList.remove('loading');
+        m.value = '';
+        sync();
+        var n = (d && d.sent) || 0;
+        toast('Envoyée à ' + nf.format(n) + ' appareil' + (n > 1 ? 's' : '') + (d && d.failed ? ' · ' + d.failed + ' échec(s)' : ''));
+      } catch (e) {
+        btn.classList.remove('loading');
+        toast(explain(e), 'err');
+      }
+    });
+
+    add(host, [
+      h('div', { class: 'sec-h' }, h('h2', { text: 'Envoyer une notification' })),
+      h('p', { class: 'nlead', text: 'Elle arrive sur tous les appareils des utilisateurs qui ont activé les notifications (icône cloche sur l’accueil de l’application).' }),
+      h('div', { class: 'nform' },
+        h('div', { style: 'display:grid;gap:16px' },
+          h('div', null, h('label', { class: 'lbl', for: 'ntitle', text: 'Titre' }), t),
+          h('div', null, h('label', { class: 'lbl', for: 'nbody', text: 'Message' }), m, cnt),
+          h('div', null, h('label', { class: 'lbl', for: 'nurl', text: 'Lien ouvert au clic' }), u, h('div', { style: 'height:10px' }), quick),
+          btn),
+        h('div', null, h('div', { class: 'npl', text: 'Aperçu' }),
+          h('div', { class: 'npv' }, h('span', { class: 'npi' }, ic('bell')), h('div', { class: 'npt' }, pt, pb))))
+    ]);
+  }
+
   function skeletonPage() {
     var w = $('#wrap');
     w.textContent = '';
@@ -722,14 +840,40 @@ a{color:inherit}
     var chart = h('section', { class: 'panel' });
     var ages = h('section', { class: 'panel' });
     var users = h('section', { class: 'panel' });
+    var notify = h('section', { class: 'panel' });
     var top = h('section', null, head, h('div', { style: 'height:12px' }), kpis);
-    add(wrap, [top, chart, ages, users]);
-    Array.prototype.forEach.call(wrap.children, function (c, i) { c.style.setProperty('--i', i); });
+    var panes = { overview: [top, chart], users: [users], ages: [ages], notify: [notify] };
+    Object.keys(panes).forEach(function (k) {
+      var pane = h('div', { class: 'pane', 'data-pane': k, hidden: true });
+      panes[k].forEach(function (c, i) { c.style.setProperty('--i', i); pane.appendChild(c); });
+      wrap.appendChild(pane);
+    });
     renderStats(kpis);
     renderChartPanel(chart);
     loadAges(ages);
     usersPanel(users);
+    notifyPanel(notify);
+    showTab();
   }
+
+  var TABS = { overview: 'Aperçu', users: 'Utilisateurs', ages: 'Âges', notify: 'Notifications' };
+  function curTab() {
+    var t = (location.hash || '').slice(1);
+    return TABS[t] ? t : 'overview';
+  }
+  function showTab() {
+    var t = curTab();
+    Array.prototype.forEach.call(document.querySelectorAll('.pane'), function (p) { p.hidden = p.getAttribute('data-pane') !== t; });
+    Array.prototype.forEach.call(document.querySelectorAll('.ni'), function (a) {
+      var on = a.getAttribute('data-tab') === t;
+      a.classList.toggle('on', on);
+      a.setAttribute('aria-current', on ? 'page' : 'false');
+    });
+    $('#tabTitle').textContent = TABS[t];
+    document.title = TABS[t] + ' – Administration – Lisolo';
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', showTab);
 
   async function init() {
     var me;
@@ -744,6 +888,7 @@ a{color:inherit}
     if (!me.isAdmin) { location.replace('/app'); return; }
     $('#who').textContent = me.email;
     $('#root').hidden = false;
+    showTab();
     $('#refresh').addEventListener('click', async function () {
       if (Date.now() - lastRefresh < 5000) return;
       lastRefresh = Date.now();
