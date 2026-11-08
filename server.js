@@ -1163,9 +1163,10 @@ app.get(
     const days = [];
     for (let i = 13; i >= 0; i--) days.push(new Date(Date.now() + 3600000 - i * DAY).toISOString().slice(0, 10));
     const refs = [db.doc('stats/global'), ...days.map((d) => db.doc('stats/day_' + d))];
-    const [snaps, prem] = await Promise.all([
+    const [snaps, prem, allUsers] = await Promise.all([
       db.getAll(...refs),
       db.collection('users').where('planExpiresAt', '>', Date.now()).count().get(),
+      db.collection('users').count().get(),
     ]);
     const pick = (x) => ({
       users: x.users || 0,
@@ -1175,7 +1176,7 @@ app.get(
       revenue: x.revenue || 0,
     });
     const out = {
-      totals: pick(snaps[0].exists ? snaps[0].data() : {}),
+      totals: { ...pick(snaps[0].exists ? snaps[0].data() : {}), users: allUsers.data().count },
       premiumActive: prem.data().count,
       currency: payments.price.currency,
       daily: days.map((d, i) => ({ date: d, ...pick(snaps[i + 1].exists ? snaps[i + 1].data() : {}) })),
