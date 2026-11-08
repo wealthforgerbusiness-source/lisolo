@@ -2089,7 +2089,7 @@ body.m-pub .toasts{bottom:calc(var(--sb) + 20px)}
       }
     });
     loadNotifs();
-    setInterval(function () { if (document.visibilityState === 'visible') loadNotifs(); }, 60000);
+    setInterval(function () { if (document.visibilityState === 'visible') loadNotifs(); }, 300000);
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.addEventListener('message', function (e) {
         if (e.data && e.data.type === 'push') { loadNotifs(); loadMe(true).catch(function () {}); }
