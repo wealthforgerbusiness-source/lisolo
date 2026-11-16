@@ -76,10 +76,6 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 .ch h2{font-size:26px;font-weight:800;letter-spacing:-.01em}
 .ch p{margin-top:6px;color:var(--mut);font-size:15px;line-height:1.45}
 
-.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;background:var(--tint);border-radius:16px;padding:5px;margin:22px 0 20px}
-.tab{position:relative;z-index:2;height:44px;border-radius:12px;font-weight:800;font-size:15px;color:var(--mut);transition:color .25s}
-.tab.on{color:#fff}
-.ind{position:absolute;z-index:1;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:12px;background:var(--o);box-shadow:0 6px 16px rgba(248,90,3,.35);transition:transform .4s var(--ease)}
 
 .msg{border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.4;font-weight:600;background:var(--tint);color:var(--o3);border:1px solid var(--tint2);margin-bottom:14px}
 .msg.info{background:#fff;border-color:var(--o);color:var(--ink)}
@@ -97,21 +93,8 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 .inp input[type=date]::-webkit-calendar-picker-indicator{opacity:.55;cursor:pointer}
 .pre{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--mut);font-weight:800;pointer-events:none}
 .has-pre input{padding-left:34px}
-.has-eye input{padding-right:52px}
-.eye{position:absolute;right:6px;top:6px;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--mut)}
-.eye:hover{background:var(--tint)}
-.eye .off{display:none}
-.eye.on .off{display:block}
-.eye.on .open{display:none}
 
-.row{display:flex;justify-content:flex-end;margin-top:-4px}
-.lnk{font-size:13px;font-weight:800;color:var(--o2)}
-.lnk:hover{text-decoration:underline}
 
-.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:9px}
-.meter i{height:5px;border-radius:4px;background:var(--line);transition:background .3s}
-.meter[data-level="1"] i:nth-child(-n+1),.meter[data-level="2"] i:nth-child(-n+2),.meter[data-level="3"] i:nth-child(-n+3),.meter[data-level="4"] i:nth-child(-n+4){background:var(--o)}
-.mlabel{font-size:12px;font-weight:700;color:var(--mut);margin-top:6px;min-height:15px}
 .hint{font-size:12.5px;font-weight:700;color:var(--mut);margin-top:6px;min-height:16px;line-height:1.35}
 .hint.ok{color:var(--o3)}
 .hint.bad{color:#C0261B}
@@ -139,16 +122,7 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 .sec.loading::after{border-color:var(--tint2);border-top-color:var(--o)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.or{display:flex;align-items:center;gap:12px;color:var(--mut);font-size:13px;font-weight:700}
-.or::before,.or::after{content:"";height:1px;background:var(--line);flex:1}
 
-.vicon{width:76px;height:76px;border-radius:50%;background:var(--tint);color:var(--o);display:grid;place-items:center;margin:4px auto 2px}
-.vicon .ic{width:34px;height:34px}
-.ready .vicon{animation:bob 2.6s ease-in-out infinite}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.vt{text-align:center;font-size:22px;font-weight:800}
-.vp{text-align:center;color:var(--mut);font-size:15px;line-height:1.5}
-.vp strong{display:block;color:var(--ink);margin-top:4px;word-break:break-all}
 
 .back{display:inline-block;margin-top:22px;font-size:14px;color:var(--mut);text-decoration:none}
 .back:hover{color:var(--o2)}
@@ -184,14 +158,17 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
   .panel{margin-top:-32px;border-radius:30px 30px 0 0;position:relative;z-index:3;align-items:flex-start;padding:28px 20px calc(28px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px rgba(0,0,0,.14)}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
+.g{height:58px;font-size:17px;box-shadow:0 8px 22px rgba(27,18,13,.1)}
+.g .ic{width:24px;height:24px}
+.btn.loading .ic{opacity:0}
+.alt{display:flex;flex-direction:column;gap:10px}
+.alt .btn{text-decoration:none}
+.fine{font-size:13px;color:var(--mut);line-height:1.5;text-align:center}
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
-  <symbol id="i-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17.5 17.5 0 0 1-3.2 4.2M6.6 6.6A17.6 17.6 0 0 0 2 12s3.6 7 10 7c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
-  <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7.5l8.5 6 8.5-6"/></symbol>
-  <symbol id="i-google" viewBox="0 0 18 18"><path fill="currentColor" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/><path fill="currentColor" d="M9 18c2.43 0 4.4673-.8059 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.8591-3.0477.8591-2.3441 0-4.3282-1.5832-5.0359-3.7105H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z"/><path fill="currentColor" d="M3.9641 10.71c-.18-.54-.2823-1.1168-.2823-1.71s.1023-1.17.2823-1.71V4.9582H.9573A8.9965 8.9965 0 0 0 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.9641 10.71z"/><path fill="currentColor" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.3459l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.9641 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z"/></symbol>
+  <symbol id="i-google" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2045c0-.6381-.0573-1.2518-.1636-1.8409H9v3.4814h4.8436c-.2086 1.125-.8427 2.0782-1.7959 2.7164v2.2581h2.9087c1.7018-1.5668 2.6836-3.874 2.6836-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.4673-.8059 5.9564-2.1805l-2.9087-2.2581c-.8059.54-1.8368.8591-3.0477.8591-2.3441 0-4.3282-1.5832-5.0359-3.7105H.9573v2.3318C2.4382 15.9832 5.4818 18 9 18z"/><path fill="#FBBC05" d="M3.9641 10.71c-.18-.54-.2823-1.1168-.2823-1.71s.1023-1.17.2823-1.71V4.9582H.9573A8.9965 8.9965 0 0 0 0 9c0 1.4523.3477 2.8268.9573 4.0418L3.9641 10.71z"/><path fill="#EA4335" d="M9 3.5795c1.3214 0 2.5077.4541 3.4405 1.3459l2.5813-2.5814C13.4632.8918 11.426 0 9 0 5.4818 0 2.4382 2.0168.9573 4.9582L3.9641 7.29C4.6718 5.1627 6.6559 3.5795 9 3.5795z"/></symbol>
 </svg>
 
 <main class="shell">
@@ -216,76 +193,19 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
     <div class="card" id="card">
       <header class="ch">
         <h2>Ton espace Lisolo</h2>
-        <p id="chSub">Reçois des messages anonymes et lance tes quiz.</p>
+        <p id="chSub">Connecte-toi ou crée ton compte en un clic avec Google. Pas de mot de passe, pas d’email de confirmation.</p>
       </header>
-
-      <div class="tabs" role="tablist">
-        <span class="ind" id="ind"></span>
-        <button class="tab on" type="button" role="tab" data-mode="login" aria-selected="true">Connexion</button>
-        <button class="tab" type="button" role="tab" data-mode="signup" aria-selected="false">Inscription</button>
-      </div>
 
       <div class="msg" id="notice" hidden></div>
       <div class="msg" id="msg" role="alert" aria-live="polite" hidden></div>
 
-      <form class="pf" id="loginPanel" role="tabpanel" novalidate>
-        <div class="fld">
-          <label for="liEmail">Email</label>
-          <div class="inp"><input id="liEmail" type="email" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="ton@email.com" maxlength="254"></div>
+      <div class="pf" id="loginPanel">
+        <button class="btn sec g" type="button" id="googleBtn" disabled><svg class="ic"><use href="#i-google"/></svg>Continuer avec Google</button>
+        <div class="alt" id="altWrap" hidden>
+          <a class="btn pri" id="openChrome" href="#" hidden>Ouvrir dans Chrome</a>
+          <button class="btn sec" type="button" id="copyLink">Copier le lien</button>
         </div>
-        <div class="fld">
-          <label for="liPass">Mot de passe</label>
-          <div class="inp has-eye">
-            <input id="liPass" type="password" autocomplete="current-password" placeholder="Ton mot de passe" maxlength="128">
-            <button class="eye" type="button" data-toggle="liPass" aria-label="Afficher le mot de passe"><svg class="ic open"><use href="#i-eye"/></svg><svg class="ic off"><use href="#i-eye-off"/></svg></button>
-          </div>
-        </div>
-        <div class="row"><button class="lnk" type="button" id="forgot">Mot de passe oublié ?</button></div>
-        <button class="btn pri" type="submit" id="loginBtn">Se connecter</button>
-        <div class="or gwrap"><span>ou avec Google (facultatif)</span></div>
-        <button class="btn sec gwrap" type="button" id="googleLogin" disabled><svg class="ic"><use href="#i-google"/></svg>Continuer avec Google</button>
-      </form>
-
-      <form class="pf" id="signupPanel" role="tabpanel" novalidate hidden>
-        <div class="fld">
-          <label for="suPseudo">Pseudo (optionnel)</label>
-          <div class="inp has-pre"><span class="pre">@</span><input id="suPseudo" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ton_pseudo" maxlength="20"></div>
-        </div>
-        <div class="fld">
-          <label for="suBirth">Date de naissance</label>
-          <div class="inp"><input id="suBirth" type="date" autocomplete="bday" aria-describedby="suAge"></div>
-          <div class="hint" id="suAge" aria-live="polite"></div>
-        </div>
-        <div class="fld">
-          <label for="suEmail">Email</label>
-          <div class="inp"><input id="suEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="ton@email.com" maxlength="254"></div>
-        </div>
-        <div class="fld">
-          <label for="suPass">Mot de passe</label>
-          <div class="inp has-eye">
-            <input id="suPass" type="password" autocomplete="new-password" placeholder="8 caractères minimum" maxlength="128">
-            <button class="eye" type="button" data-toggle="suPass" aria-label="Afficher le mot de passe"><svg class="ic open"><use href="#i-eye"/></svg><svg class="ic off"><use href="#i-eye-off"/></svg></button>
-          </div>
-          <div class="meter" id="meter" data-level="0"><i></i><i></i><i></i><i></i></div>
-          <div class="mlabel" id="mlabel"></div>
-        </div>
-        <label class="check">
-          <input type="checkbox" id="terms">
-          <span class="box"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-          <span>J’accepte les <a href="/legal" target="_blank" rel="noopener">conditions d’utilisation</a> et la <a href="/legal" target="_blank" rel="noopener">politique de confidentialité</a>.</span>
-        </label>
-        <button class="btn pri" type="submit" id="signupBtn" disabled>Créer mon compte</button>
-        <div class="or gwrap"><span>ou avec Google (facultatif)</span></div>
-        <button class="btn sec gwrap" type="button" id="googleSignup" disabled><svg class="ic"><use href="#i-google"/></svg>S’inscrire avec Google</button>
-      </form>
-
-      <div class="pf" id="verifyPanel" hidden>
-        <div class="vicon"><svg class="ic"><use href="#i-mail"/></svg></div>
-        <h3 class="vt" id="verifyTitle">Vérifie ta boîte mail</h3>
-        <p class="vp"><span id="verifyText"></span><strong id="verifyEmail"></strong></p>
-        <p class="vp"><strong>Tu ne vois rien ? Ouvre tes SPAMS (courrier indésirable).</strong>L’email vient d’un expéditeur « noreply » (firebaseapp.com). Appuie sur « Pas un spam », puis clique sur le lien. Après ça, reviens ici et connecte-toi.</p>
-        <button class="btn sec" type="button" id="resendBtn">Renvoyer l’email</button>
-        <button class="btn pri" type="button" id="verifyBack">J’ai confirmé, me connecter</button>
+        <p class="fine">Nouveau sur Lisolo ? Ton compte est créé automatiquement à ta première connexion.</p>
       </div>
 
       <a class="back" href="/">Retour à l’accueil</a>
@@ -296,7 +216,7 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle" hidden>
   <div class="sheet-card">
     <h3 id="shTitle">Dernière étape</h3>
-    <p class="d">Termine la création de ton compte Lisolo.</p>
+    <p class="d" id="shDesc">Termine la création de ton compte Lisolo.</p>
     <div class="msg" id="shMsg" role="alert" hidden></div>
     <div class="fld" id="shPseudoWrap">
       <label for="shPseudo">Pseudo (optionnel)</label>
@@ -325,7 +245,6 @@ body:not(.ready) .shell{opacity:0;animation:reveal 0s 3s forwards}
 <script type="module">
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PSEUDO_RE = /^[a-z0-9_]{3,20}$/;
 const NEXT_OK = /^\/(?:app|u\/[a-z0-9_]{3,20}|q\/[A-Za-z0-9]{20})$/;
 const FB_VERSION = '10.14.1';
@@ -336,8 +255,6 @@ const nextUrl = NEXT_OK.test(nextRaw) ? nextRaw : '/app';
 
 const ua = navigator.userAgent || '';
 const embedded = /FBAN|FBAV|FB_IAB|Instagram|WhatsApp|Line\/|Snapchat|TikTok|musical_ly|MicroMessenger|; wv\)/i.test(ua);
-const iosStandalone = window.navigator.standalone === true;
-const googleBlocked = embedded || iosStandalone;
 
 const deviceId = (() => {
   try {
@@ -353,22 +270,17 @@ const deviceId = (() => {
 })();
 
 const TEXT = {
-  'auth/invalid-credential': 'Email ou mot de passe incorrect.',
-  'auth/invalid-login-credentials': 'Email ou mot de passe incorrect.',
-  'auth/user-not-found': 'Email ou mot de passe incorrect.',
-  'auth/wrong-password': 'Email ou mot de passe incorrect.',
-  'auth/email-already-in-use': 'Cet email est déjà utilisé. Connecte-toi ou réinitialise ton mot de passe.',
-  'auth/weak-password': 'Mot de passe trop faible. Utilise au moins 8 caractères.',
-  'auth/invalid-email': 'Adresse email invalide.',
-  'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
   'auth/network-request-failed': 'Pas de connexion internet. Vérifie ton réseau.',
+  'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
   'auth/popup-blocked': 'Le navigateur a bloqué la fenêtre Google. Autorise les popups puis réessaie.',
-  'auth/account-exists-with-different-credential': 'Un compte existe déjà avec cet email. Connecte-toi avec ta méthode d’origine.',
+  'auth/account-exists-with-different-credential': 'Un compte existe déjà avec cet email. Réessaie avec Google.',
   'auth/user-disabled': 'Ce compte est désactivé.',
   'auth/unauthorized-domain': 'Ce domaine n’est pas autorisé pour la connexion.',
-  'auth/operation-not-allowed': 'Cette méthode de connexion n’est pas activée.',
+  'auth/operation-not-allowed': 'La connexion Google n’est pas activée.',
+  'auth/web-storage-unsupported': 'Ton navigateur bloque le stockage nécessaire. Autorise les cookies ou ouvre le lien dans Chrome ou Safari.',
   terms_required: 'Tu dois accepter les conditions pour créer un compte.',
-  email_not_verified: 'Vérifie ton email avant de te connecter.',
+  terms_update: 'Tu dois accepter les conditions mises à jour pour continuer.',
+  email_not_verified: 'Ce compte Google n’a pas d’email vérifié. Essaie avec un autre compte.',
   recent_login_required: 'Session expirée. Reconnecte-toi.',
   banned: 'Ce compte a été suspendu.',
   username_taken: 'Ce pseudo est déjà pris. Choisis-en un autre.',
@@ -408,12 +320,9 @@ async function api(path, opts = {}) {
 const card = $('#card');
 const msgEl = $('#msg');
 const sheet = $('#sheet');
-let mode = 'login';
 let busy = false;
 let fb = null;
-let termsVersion = '1';
 let sheetState = null;
-let cdTimer = null;
 
 function showMsg(text, kind) {
   msgEl.textContent = text;
@@ -436,12 +345,7 @@ function setSheetMsg(text) {
 }
 
 function syncGates() {
-  const ok = $('#terms').checked;
-  const birthOk = !birthIssue($('#suBirth').value);
-  $('#loginBtn').disabled = busy;
-  $('#signupBtn').disabled = !ok || !birthOk || busy;
-  $('#googleLogin').disabled = !fb || busy;
-  $('#googleSignup').disabled = !ok || !fb || busy;
+  $('#googleBtn').disabled = !fb || busy || embedded;
 }
 
 async function run(btn, fn) {
@@ -464,7 +368,7 @@ async function run(btn, fn) {
 function handleError(e) {
   const c = e && e.code;
   if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return;
-  if (c === 'recent_login_required' || c === 'invalid_token') signOutSafe();
+  if (c === 'recent_login_required' || c === 'invalid_token' || c === 'email_not_verified') signOutSafe();
   showMsg(explain(e));
 }
 
@@ -472,91 +376,6 @@ async function signOutSafe() {
   try {
     if (fb) await fb.m.signOut(fb.auth);
   } catch (e) {}
-}
-
-function showPanel(id) {
-  $$('.pf').forEach((p) => {
-    const on = p.id === id;
-    p.hidden = !on;
-    if (on) Array.from(p.children).forEach((c, i) => c.style.setProperty('--i', i));
-  });
-  $('.tabs').hidden = id === 'verifyPanel';
-  clearMsg();
-}
-
-const SUBS = {
-  login: 'Connecte-toi avec ton email et ton mot de passe. Google est facultatif : l’email marche sur tous les téléphones, iPhone compris.',
-  signup: 'Pas de compte Google ? Pas de souci : crée ton compte avec ton email et un mot de passe. Ça marche sur iPhone comme sur Android.',
-};
-
-function setMode(m) {
-  mode = m;
-  $('#ind').style.transform = m === 'login' ? 'translateX(0)' : 'translateX(100%)';
-  $$('.tab').forEach((t) => {
-    const on = t.dataset.mode === m;
-    t.classList.toggle('on', on);
-    t.setAttribute('aria-selected', String(on));
-  });
-  showPanel(m === 'login' ? 'loginPanel' : 'signupPanel');
-  $('#chSub').textContent = SUBS[m];
-  history.replaceState(null, '', location.pathname + location.search + (m === 'signup' ? '#signup' : ''));
-}
-
-function startCooldown(sec) {
-  const b = $('#resendBtn');
-  let left = sec;
-  clearInterval(cdTimer);
-  b.disabled = true;
-  const tick = () => {
-    if (left <= 0) {
-      clearInterval(cdTimer);
-      b.disabled = false;
-      b.textContent = 'Renvoyer l’email';
-      return;
-    }
-    b.textContent = 'Renvoyer l’email (' + left + ' s)';
-    left -= 1;
-  };
-  tick();
-  cdTimer = setInterval(tick, 1000);
-}
-
-function showVerify(email, justSent) {
-  $('#verifyEmail').textContent = email;
-  $('#verifyTitle').textContent = justSent ? 'Vérifie ta boîte mail' : 'Email non vérifié';
-  $('#verifyText').textContent = justSent ? 'Nous venons d’envoyer un lien de confirmation à ' : 'Confirme ton adresse avec le lien reçu par email : ';
-  showPanel('verifyPanel');
-  if (justSent) {
-    startCooldown(60);
-  } else {
-    clearInterval(cdTimer);
-    const b = $('#resendBtn');
-    b.disabled = false;
-    b.textContent = 'Renvoyer l’email';
-  }
-}
-
-function readConsent() {
-  try {
-    return JSON.parse(localStorage.getItem('lisolo_signup') || 'null');
-  } catch (e) {
-    return null;
-  }
-}
-function saveConsent(email, pseudo, birthDate) {
-  try {
-    localStorage.setItem('lisolo_signup', JSON.stringify({ e: email, u: pseudo || '', b: birthDate || '', t: termsVersion }));
-  } catch (e) {}
-}
-function clearConsent() {
-  try {
-    localStorage.removeItem('lisolo_signup');
-  } catch (e) {}
-}
-function consentFor(email) {
-  const c = readConsent();
-  if (c && c.e === email && c.t === termsVersion) return { acceptTerms: true, username: c.u || undefined, birthDate: c.b || undefined };
-  return { acceptTerms: false };
 }
 
 const normPseudo = (v) => String(v || '').trim().toLowerCase().replace(/^@/, '');
@@ -590,30 +409,22 @@ function birthIssue(iso) {
   return '';
 }
 
-function syncBirthHints() {
-  [['#suBirth', '#suAge'], ['#shBirth', '#shAge']].forEach(function (pair) {
-    const input = $(pair[0]);
-    const hint = $(pair[1]);
-    if (!input || !hint) return;
-    const v = input.value;
-    if (!v) { hint.textContent = ''; hint.className = 'hint'; return; }
-    const issue = birthIssue(v);
-    if (issue) { hint.textContent = issue; hint.className = 'hint bad'; return; }
-    hint.textContent = 'Tu as ' + ageFrom(v) + ' ans.';
-    hint.className = 'hint ok';
-  });
+function syncBirthHint() {
+  const input = $('#shBirth');
+  const hint = $('#shAge');
+  const v = input.value;
+  if (!v) { hint.textContent = ''; hint.className = 'hint'; return; }
+  const issue = birthIssue(v);
+  if (issue) { hint.textContent = issue; hint.className = 'hint bad'; return; }
+  hint.textContent = 'Tu as ' + ageFrom(v) + ' ans.';
+  hint.className = 'hint ok';
 }
 
 (function initBirthBounds() {
   const now = new Date();
-  const max = isoDate(new Date(now.getFullYear() - MIN_AGE, now.getMonth(), now.getDate()));
-  const min = isoDate(new Date(now.getFullYear() - MAX_AGE, now.getMonth(), now.getDate()));
-  ['#suBirth', '#shBirth'].forEach(function (s) {
-    const el = $(s);
-    if (!el) return;
-    el.max = max;
-    el.min = min;
-  });
+  const el = $('#shBirth');
+  el.max = isoDate(new Date(now.getFullYear() - MIN_AGE, now.getMonth(), now.getDate()));
+  el.min = isoDate(new Date(now.getFullYear() - MAX_AGE, now.getMonth(), now.getDate()));
 })();
 
 function celebrate() {
@@ -623,16 +434,15 @@ function celebrate() {
   setTimeout(() => location.replace(nextUrl), 1150);
 }
 
+// Ouvre la session serveur à partir du compte Google connecté.
+// Première connexion : le serveur demande d'abord les conditions (+ date de naissance + pseudo),
+// qu'on récupère dans la feuille « Dernière étape ».
 async function finishSession(input) {
   const user = fb.auth.currentUser;
   if (!user) {
     const e = new Error('invalid_token');
     e.code = 'invalid_token';
     throw e;
-  }
-  if (!user.emailVerified) {
-    showVerify(user.email || '', false);
-    return;
   }
   const idToken = await user.getIdToken();
   try {
@@ -642,20 +452,23 @@ async function finishSession(input) {
     });
   } catch (e) {
     if (e.code === 'terms_required') {
-      openSheet({ needTerms: true, needPseudo: true, birthDate: input.birthDate || $('#suBirth').value || '', error: '' });
+      openSheet({ needTerms: true, needPseudo: true, needBirth: true, error: '' });
+      return;
+    }
+    if (e.code === 'terms_update') {
+      openSheet({ needTerms: true, needPseudo: false, needBirth: false, error: '' });
       return;
     }
     if (e.code === 'birth_required' || e.code === 'birth_invalid' || e.code === 'age_too_young') {
-      openSheet({ needTerms: false, needPseudo: false, needBirth: true, birthDate: input.birthDate || $('#suBirth').value || '', error: explain(e) });
+      openSheet({ needTerms: false, needPseudo: false, needBirth: true, error: explain(e) });
       return;
     }
     if (e.code === 'username_taken' || e.code === 'username_invalid') {
-      openSheet({ needTerms: false, needPseudo: true, birthDate: input.birthDate || $('#suBirth').value || '', error: explain(e) });
+      openSheet({ needTerms: false, needPseudo: true, needBirth: false, error: explain(e) });
       return;
     }
     throw e;
   }
-  clearConsent();
   await signOutSafe();
   celebrate();
 }
@@ -667,13 +480,13 @@ function openSheet(o) {
   $('#shTermsWrap').hidden = !o.needTerms;
   $('#shTerms').checked = false;
   $('#shPseudo').value = '';
-  $('#shBirth').value = o.birthDate || $('#suBirth').value || '';
-  syncBirthHints();
+  $('#shBirth').value = '';
+  syncBirthHint();
   setSheetMsg(o.error);
   sheet.hidden = false;
   requestAnimationFrame(() => {
     sheet.classList.add('open');
-    const first = o.needBirth ? $('#shBirth') : (o.needPseudo ? $('#shPseudo') : $('#shTerms'));
+    const first = o.needPseudo ? $('#shPseudo') : (o.needBirth ? $('#shBirth') : $('#shTerms'));
     setTimeout(() => first.focus({ preventScroll: true }), 250);
   });
 }
@@ -729,7 +542,6 @@ async function confirmSheet() {
       body: { idToken, acceptTerms: true, username: pseudo || undefined, birthDate: birthDate || undefined },
     });
     closeSheet();
-    clearConsent();
     await signOutSafe();
     celebrate();
   } catch (e) {
@@ -751,79 +563,14 @@ async function confirmSheet() {
   }
 }
 
-async function onLogin(ev) {
-  ev.preventDefault();
-  if (busy) return;
+function onGoogle() {
+  if (busy || !fb || embedded) return;
   clearMsg();
-  const email = $('#liEmail').value.trim().toLowerCase();
-  const pass = $('#liPass').value;
-  if (!EMAIL_RE.test(email)) return showMsg(TEXT['auth/invalid-email']);
-  if (!pass) return showMsg('Entre ton mot de passe.');
-  if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
-  await run($('#loginBtn'), async () => {
-    const cred = await fb.m.signInWithEmailAndPassword(fb.auth, email, pass);
-    if (!cred.user.emailVerified) {
-      showVerify(email, false);
-      return;
-    }
-    await finishSession(consentFor(email));
-  });
-}
-
-async function onSignup(ev) {
-  ev.preventDefault();
-  if (busy) return;
-  clearMsg();
-  if (!$('#terms').checked) return showMsg(TEXT.terms_required);
-  const email = $('#suEmail').value.trim().toLowerCase();
-  const pass = $('#suPass').value;
-  const pseudo = normPseudo($('#suPseudo').value);
-  if (!EMAIL_RE.test(email)) return showMsg(TEXT['auth/invalid-email']);
-  if (pass.length < 8 || pass.length > 128) return showMsg('Le mot de passe doit contenir au moins 8 caractères.');
-  if (pseudo && !PSEUDO_RE.test(pseudo)) return showMsg(TEXT.username_invalid);
-  const birthDate = $('#suBirth').value;
-  const birthErr = birthIssue(birthDate);
-  if (birthErr) {
-    $('#suBirth').focus();
-    return showMsg(birthErr);
-  }
-  if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
-  await run($('#signupBtn'), async () => {
-    const cred = await fb.m.createUserWithEmailAndPassword(fb.auth, email, pass);
-    saveConsent(email, pseudo, birthDate);
-    try {
-      await fb.m.sendEmailVerification(cred.user);
-    } catch (e) {
-      showVerify(email, false);
-      showMsg('Compte créé, mais l’email n’a pas pu être envoyé. Utilise « Renvoyer l’email ».');
-      return;
-    }
-    showVerify(email, true);
-  });
-}
-
-function onGoogle(fromSignup) {
-  if (busy || !fb) return;
-  clearMsg();
-  if (fromSignup) {
-    if (!$('#terms').checked) return showMsg(TEXT.terms_required);
-    const p = normPseudo($('#suPseudo').value);
-    if (p && !PSEUDO_RE.test(p)) return showMsg(TEXT.username_invalid);
-    const birthErr = birthIssue($('#suBirth').value);
-    if (birthErr) {
-      $('#suBirth').focus();
-      return showMsg(birthErr);
-    }
-  }
   const provider = new fb.m.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
-  run(fromSignup ? $('#googleSignup') : $('#googleLogin'), async () => {
-    const cred = await fb.m.signInWithPopup(fb.auth, provider);
-    const email = String(cred.user.email || '').toLowerCase();
-    const input = fromSignup
-      ? { acceptTerms: true, username: normPseudo($('#suPseudo').value) || undefined, birthDate: $('#suBirth').value || undefined }
-      : consentFor(email);
-    await finishSession(input);
+  run($('#googleBtn'), async () => {
+    await fb.m.signInWithPopup(fb.auth, provider);
+    await finishSession({ acceptTerms: false });
   });
 }
 
@@ -843,103 +590,38 @@ async function initFirebase(cfg) {
   fb = { auth, m };
 }
 
-function strength(p) {
-  let s = 0;
-  if (p.length >= 8) s++;
-  if (p.length >= 12) s++;
-  if (/[a-zA-Z]/.test(p) && /\d/.test(p)) s++;
-  if (/[^A-Za-z0-9]/.test(p) || (/[a-z]/.test(p) && /[A-Z]/.test(p))) s++;
-  return p.length === 0 ? 0 : Math.max(1, Math.min(4, s));
-}
-
-$$('.tab').forEach((t) => t.addEventListener('click', () => {
-  if (!busy) setMode(t.dataset.mode);
-}));
-
-$$('[data-toggle]').forEach((b) => b.addEventListener('click', () => {
-  const i = document.getElementById(b.dataset.toggle);
-  const show = i.type === 'password';
-  i.type = show ? 'text' : 'password';
-  b.classList.toggle('on', show);
-  b.setAttribute('aria-label', show ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
-}));
-
-['#suPseudo', '#shPseudo'].forEach((sel) => $(sel).addEventListener('input', (e) => {
-  const v = e.target.value.toLowerCase().replace(/^@/, '').replace(/[^a-z0-9_]/g, '').slice(0, 20);
-  if (v !== e.target.value) e.target.value = v;
-}));
-
-$('#suPass').addEventListener('input', (e) => {
-  const l = strength(e.target.value);
-  $('#meter').dataset.level = String(l);
-  $('#mlabel').textContent = ['', 'Faible', 'Moyen', 'Bon', 'Fort'][l];
-});
-
-$('#terms').addEventListener('change', () => {
-  clearMsg();
-  syncGates();
-});
-
-['#suBirth', '#shBirth'].forEach((sel) => {
-  const el = $(sel);
-  el.addEventListener('input', () => {
-    clearMsg();
-    syncBirthHints();
-    syncGates();
-  });
-  el.addEventListener('change', () => {
-    syncBirthHints();
-    syncGates();
-  });
-});
-
-$('#loginPanel').addEventListener('submit', onLogin);
-$('#signupPanel').addEventListener('submit', onSignup);
-$('#googleLogin').addEventListener('click', () => onGoogle(false));
-$('#googleSignup').addEventListener('click', () => onGoogle(true));
+$('#googleBtn').addEventListener('click', onGoogle);
 $('#shConfirm').addEventListener('click', confirmSheet);
 $('#shCancel').addEventListener('click', cancelSheet);
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && !sheet.hidden) cancelSheet();
 });
+$('#shBirth').addEventListener('input', syncBirthHint);
+$('#shBirth').addEventListener('change', syncBirthHint);
+$('#shPseudo').addEventListener('input', (e) => {
+  const v = e.target.value.toLowerCase().replace(/^@/, '').replace(/[^a-z0-9_]/g, '').slice(0, 20);
+  if (v !== e.target.value) e.target.value = v;
+});
 
-$('#forgot').addEventListener('click', async () => {
-  if (busy) return;
-  clearMsg();
-  const email = $('#liEmail').value.trim().toLowerCase();
-  if (!EMAIL_RE.test(email)) return showMsg('Entre ton email ci-dessus, puis clique sur « Mot de passe oublié ».');
-  if (!fb) return showMsg('Chargement en cours, réessaie dans un instant.');
-  await run(null, async () => {
+$('#copyLink').addEventListener('click', async () => {
+  const url = location.origin + '/login' + (nextUrl !== '/app' ? '?next=' + encodeURIComponent(nextUrl) : '');
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(url);
+    ok = true;
+  } catch (e) {
     try {
-      await fb.m.sendPasswordResetEmail(fb.auth, email);
-    } catch (e) {
-      if (e.code === 'auth/too-many-requests' || e.code === 'auth/network-request-failed') throw e;
-    }
-    showMsg('Si un compte existe pour cet email, un lien de réinitialisation vient d’être envoyé. Regarde aussi dans tes spams.', 'info');
-  });
-});
-
-$('#resendBtn').addEventListener('click', async () => {
-  if (busy) return;
-  const u = fb && fb.auth.currentUser;
-  if (!u) {
-    setMode('login');
-    return showMsg('Reconnecte-toi pour renvoyer l’email de confirmation.', 'info');
+      const t = document.createElement('textarea');
+      t.value = url;
+      t.style.position = 'fixed';
+      t.style.opacity = '0';
+      document.body.appendChild(t);
+      t.select();
+      ok = document.execCommand('copy');
+      t.remove();
+    } catch (e2) {}
   }
-  await run($('#resendBtn'), async () => {
-    await fb.m.sendEmailVerification(u);
-    showMsg('Email renvoyé. Vérifie aussi tes spams.', 'info');
-    startCooldown(60);
-  });
-});
-
-$('#verifyBack').addEventListener('click', async () => {
-  if (busy) return;
-  const email = $('#verifyEmail').textContent;
-  await signOutSafe();
-  setMode('login');
-  $('#liEmail').value = email;
-  $('#liPass').focus();
+  showMsg(ok ? 'Lien copié. Colle-le dans Chrome ou Safari.' : 'Copie ce lien à la main : ' + url, 'info');
 });
 
 (async function init() {
@@ -954,26 +636,21 @@ $('#verifyBack').addEventListener('click', async () => {
   } catch (e) {}
   clearTimeout(to);
   document.body.classList.add('ready');
-  setMode(location.hash === '#signup' ? 'signup' : 'login');
-  if (googleBlocked) {
-    $$('.gwrap').forEach((el) => {
-      el.hidden = true;
-    });
+  Array.from($('#loginPanel').children).forEach((c, i) => c.style.setProperty('--i', i));
+  if (embedded) {
     const n = $('#notice');
-    n.textContent = embedded
-      ? 'Ce navigateur intégré bloque la connexion Google. Utilise ton email, ou ouvre ce lien dans Chrome ou Safari.'
-      : 'Sur l’application installée sur iPhone, connecte-toi avec ton email et ton mot de passe.';
+    n.textContent = 'Google bloque la connexion dans ce navigateur intégré (Facebook, Instagram, WhatsApp, TikTok…). Ouvre Lisolo dans Chrome ou Safari pour te connecter.';
     n.className = 'msg info';
     n.hidden = false;
-  } else if (/iPhone|iPad|iPod/i.test(ua)) {
-    const n = $('#notice');
-    n.textContent = 'Tu as un iPhone ? Utilise ton email et ton mot de passe ci-dessous : c’est fait pour toi aussi. Pas besoin de compte Google.';
-    n.className = 'msg info';
-    n.hidden = false;
+    $('#altWrap').hidden = false;
+    if (/android/i.test(ua)) {
+      const a = $('#openChrome');
+      a.href = 'intent://' + location.host + '/login' + (nextUrl !== '/app' ? '%3Fnext%3D' + encodeURIComponent(nextUrl) : '') + '#Intent;scheme=https;package=com.android.chrome;end';
+      a.hidden = false;
+    }
   }
   try {
     const cfg = await api('/api/config');
-    termsVersion = String(cfg.termsVersion || '1');
     await initFirebase(cfg);
   } catch (e) {
     showMsg(e && e.code === 'config_missing' ? TEXT.config_missing : 'Impossible de charger la connexion. Vérifie ton internet puis recharge la page.');
