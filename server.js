@@ -621,7 +621,7 @@ app.post(
         userCache.del(decoded.uid);
       }
       if ((u.terms && u.terms.version) !== TERMS_VERSION) {
-        if (!accepted) fail(409, 'terms_required');
+        if (!accepted) fail(409, 'terms_update');
         await userRef(decoded.uid).update({ terms: { version: TERMS_VERSION, at: Date.now() } });
         userCache.del(decoded.uid);
       }
