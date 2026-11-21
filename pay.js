@@ -232,7 +232,8 @@ function createPay(ctx) {
           amount,
           currency,
           description: 'Lisolo Premium - ' + days + ' jours',
-          customer_email: u.email,
+          // Les comptes pseudo + code n'ont pas d'email : adresse de remplacement pour le paiement.
+          customer_email: u.email || u.username + '@' + new URL(baseUrl(req)).hostname,
           customer_name: u.displayName || u.username || 'Client Lisolo',
           return_url: baseUrl(req) + '/app?pay=' + oref.id + '#profile',
           metadata: { orderId: oref.id, uid: u.uid },
