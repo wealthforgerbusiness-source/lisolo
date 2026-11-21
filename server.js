@@ -354,10 +354,11 @@ function genUsername(base) {
   return b + crypto.randomInt(1000, 99999);
 }
 
-async function createProfile(decoded, input, birthDate) {
+async function createProfile(decoded, input, birthDate, cred) {
   const uid = decoded.uid;
-  const email = String(decoded.email).toLowerCase();
-  const displayName = clean(String(decoded.name || email.split('@')[0])).replace(/\s+/g, ' ').slice(0, 40) || 'Utilisateur';
+  // Les comptes pseudo + code n'ont pas d'email : on garde une chaîne vide.
+  const email = decoded.email ? String(decoded.email).toLowerCase() : '';
+  const displayName = clean(String(decoded.name || email.split('@')[0] || 'Utilisateur')).replace(/\s+/g, ' ').slice(0, 40) || 'Utilisateur';
   const photo = safePhoto(decoded.picture);
   const wanted = typeof input.username === 'string' ? input.username.trim().toLowerCase() : '';
   if (wanted && (!USERNAME_RE.test(wanted) || RESERVED.has(wanted))) fail(400, 'username_invalid');
@@ -381,6 +382,7 @@ async function createProfile(decoded, input, birthDate) {
           createdAt: now,
           terms: { version: TERMS_VERSION, at: now },
           birthDate: birthDate || '',
+          ageConfirmed: !!(birthDate || input.confirmAge === true),
           banned: false,
           unread: 0,
           quizCount: 0,
@@ -390,6 +392,7 @@ async function createProfile(decoded, input, birthDate) {
           provider: (decoded.firebase && decoded.firebase.sign_in_provider) || '',
         });
         tx.create(uRef, { uid, displayName, photo });
+        if (cred) tx.create(db.doc('credentials/' + uid), { salt: cred.salt, hash: cred.hash, fails: 0, lockUntil: 0, createdAt: now });
         return true;
       });
     } catch (e) {
@@ -399,6 +402,59 @@ async function createProfile(decoded, input, birthDate) {
   }
   return fail(500, 'username_unavailable');
 }
+
+// ---------- Comptes pseudo + code (sans Google, sans email) ----------
+const WEAK_PINS = new Set([
+  '0000', '1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999',
+  '1234', '4321', '1212', '2580', '0123', '12345', '54321', '123456', '654321', '123123', '112233',
+]);
+
+function checkPin(raw) {
+  const p = typeof raw === 'string' ? raw : '';
+  if (!/^\d{4,6}$/.test(p)) fail(400, 'pin_invalid');
+  if (WEAK_PINS.has(p) || /^(\d)\1+$/.test(p)) fail(400, 'pin_weak');
+  return p;
+}
+
+const scryptAsync = (pw, salt) =>
+  new Promise((resolve, reject) => {
+    crypto.scrypt(pw, salt, 32, { N: 16384, r: 8, p: 1 }, (err, key) => (err ? reject(err) : resolve(key)));
+  });
+
+async function hashPin(pin) {
+  const salt = crypto.randomBytes(16);
+  const key = await scryptAsync(pin, salt);
+  return { salt: salt.toString('hex'), hash: key.toString('hex') };
+}
+
+async function verifyPin(pin, cred) {
+  const key = await scryptAsync(pin, Buffer.from(String(cred.salt || ''), 'hex'));
+  const good = Buffer.from(String(cred.hash || ''), 'hex');
+  return good.length === key.length && crypto.timingSafeEqual(good, key);
+}
+
+// Ouvre une session serveur pour un uid : jeton personnalisé -> jeton ID (API Firebase) -> cookie de session.
+async function mintSession(uid) {
+  const key = process.env.FIREBASE_WEB_API_KEY;
+  if (!key) fail(503, 'config_missing');
+  const customToken = await auth.createCustomToken(uid);
+  const headers = { 'Content-Type': 'application/json' };
+  // Si la clé API est limitée par "référent HTTP", Google refuse les appels sans Referer.
+  if (BASE) headers.Referer = BASE + '/';
+  const r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=' + encodeURIComponent(key), {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ token: customToken, returnSecureToken: true }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.idToken) {
+    console.error('[pin] echange de jeton impossible:', r.status, j && j.error && j.error.message);
+    fail(502, 'session_failed');
+  }
+  return auth.createSessionCookie(j.idToken, { expiresIn: SESSION_MS });
+}
+
+const normUsername = (v) => (typeof v === 'string' ? v.trim().toLowerCase().replace(/^@/, '') : '');
 
 const limiter = (windowMs, limit, keyFn) =>
   rateLimit({
@@ -560,7 +616,8 @@ app.get('/healthz', (req, res) => res.type('text').send('ok'));
 
 payments.mountWebhook();
 
-app.use('/api', limiter(60000, 300));
+// Beaucoup d'abonnés mobiles partagent la même IP : on garde des plafonds larges par IP.
+app.use('/api', limiter(60000, 900));
 app.use('/api', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -570,7 +627,7 @@ app.use('/api', (req, res, next) => {
 });
 app.use('/api', express.json({ limit: '30kb', strict: true }));
 
-app.get('/api/config', limiter(60000, 60), (req, res) => {
+app.get('/api/config', limiter(60000, 240), (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=300');
   res.json({
     firebase: {
@@ -587,7 +644,7 @@ app.get('/api/config', limiter(60000, 60), (req, res) => {
 
 app.post(
   '/api/auth/session',
-  limiter(10 * 60000, 60),
+  limiter(10 * 60000, 200),
   wrap(async (req, res) => {
     const b = body(req);
     let decoded;
@@ -597,27 +654,41 @@ app.post(
       if (e instanceof HttpError) throw e;
       fail(401, 'invalid_token');
     }
-    if (Date.now() / 1000 - decoded.auth_time > 300) fail(401, 'recent_login_required');
+    if (Date.now() / 1000 - decoded.auth_time > 1800) fail(401, 'recent_login_required');
     const provider = decoded.firebase && decoded.firebase.sign_in_provider;
     if (provider !== 'google.com' && provider !== 'password') fail(400, 'provider_not_allowed');
     if (!decoded.email || !decoded.email_verified) fail(403, 'email_not_verified');
     const accepted = b.acceptTerms === true;
+    // La date de naissance n'est plus obligatoire : une confirmation « 13 ans ou plus » suffit.
+    const ageOk = b.confirmAge === true;
     const snap = await userRef(decoded.uid).get();
     let isNew = false;
     if (!snap.exists) {
       if (!accepted) fail(409, 'terms_required');
-      const birth = validateBirth(b.birthDate);
-      if (birth.error) fail(400, birth.error);
-      isNew = await createProfile(decoded, b, birth.iso);
+      let birthIso = '';
+      if (b.birthDate) {
+        const birth = validateBirth(b.birthDate);
+        if (birth.error) fail(400, birth.error);
+        birthIso = birth.iso;
+      } else if (!ageOk) {
+        fail(400, 'birth_required');
+      }
+      isNew = await createProfile(decoded, b, birthIso);
       userCache.del(decoded.uid);
       if (isNew) bump('users');
     } else {
       const u = snap.data();
       if (u.banned) fail(403, 'banned');
-      if (ageFromBirth(u.birthDate) === null) {
-        const birth = validateBirth(b.birthDate);
-        if (birth.error) fail(400, birth.error);
-        await userRef(decoded.uid).update({ birthDate: birth.iso });
+      if (ageFromBirth(u.birthDate) === null && !u.ageConfirmed) {
+        if (b.birthDate) {
+          const birth = validateBirth(b.birthDate);
+          if (birth.error) fail(400, birth.error);
+          await userRef(decoded.uid).update({ birthDate: birth.iso, ageConfirmed: true });
+        } else if (ageOk) {
+          await userRef(decoded.uid).update({ ageConfirmed: true });
+        } else {
+          fail(400, 'birth_required');
+        }
         userCache.del(decoded.uid);
       }
       if ((u.terms && u.terms.version) !== TERMS_VERSION) {
@@ -654,7 +725,96 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/me', limiter(60000, 90), requireAuth, (req, res) => res.json(meView(req.user)));
+// Inscription en 15 secondes : pseudo + code secret (4 à 6 chiffres), sans Google ni email.
+app.post(
+  '/api/auth/pin/register',
+  limiter(10 * 60000, 60),
+  wrap(async (req, res) => {
+    const b = body(req);
+    if (b.acceptTerms !== true || b.confirmAge !== true) fail(409, 'terms_required');
+    const uname = normUsername(b.username);
+    if (!USERNAME_RE.test(uname) || RESERVED.has(uname)) fail(400, 'username_invalid');
+    const pin = checkPin(b.pin);
+    const taken = await db.doc('usernames/' + uname).get();
+    if (taken.exists) fail(409, 'username_taken');
+
+    const uid = 'p' + crypto.randomBytes(14).toString('hex');
+    await auth.createUser({ uid, displayName: uname });
+    try {
+      const cred = await hashPin(pin);
+      const created = await createProfile(
+        { uid, name: uname, firebase: { sign_in_provider: 'pin' } },
+        { username: uname, confirmAge: true },
+        '',
+        cred
+      );
+      if (!created) fail(500, 'server_error');
+    } catch (e) {
+      await auth.deleteUser(uid).catch(() => {});
+      throw e;
+    }
+    userCache.del(uid);
+    bump('users');
+
+    let cookie;
+    try {
+      cookie = await mintSession(uid);
+    } catch (e) {
+      // Le compte existe : l'utilisateur peut se connecter avec son pseudo et son code.
+      console.error('[pin] session apres inscription:', e && e.message);
+      fail(502, 'account_created_login');
+    }
+    res.cookie(COOKIE, cookie, { ...cookieOpts(), maxAge: SESSION_MS });
+    res.json({ ok: true, isNew: true, username: uname });
+  })
+);
+
+app.post(
+  '/api/auth/pin/login',
+  limiter(10 * 60000, 80),
+  wrap(async (req, res) => {
+    const b = body(req);
+    const uname = normUsername(b.username);
+    const pin = typeof b.pin === 'string' ? b.pin : '';
+    if (!USERNAME_RE.test(uname) || !/^\d{4,6}$/.test(pin)) fail(401, 'bad_credentials');
+    const us = await db.doc('usernames/' + uname).get();
+    if (!us.exists) fail(401, 'bad_credentials');
+    const uid = String(us.data().uid || '');
+    if (!UID_RE.test(uid)) fail(401, 'bad_credentials');
+
+    // Après 5 mauvais codes, ce pseudo est bloqué 15 minutes.
+    const cref = db.doc('credentials/' + uid);
+    const result = await db.runTransaction(async (tx) => {
+      const cs = await tx.get(cref);
+      if (!cs.exists) return 'bad';
+      const c = cs.data();
+      const now = Date.now();
+      if (Number(c.lockUntil || 0) > now) return 'locked';
+      if (await verifyPin(pin, c)) {
+        if (c.fails || c.lockUntil) tx.update(cref, { fails: 0, lockUntil: 0 });
+        return 'ok';
+      }
+      const fails = Number(c.fails || 0) + 1;
+      if (fails >= 5) {
+        tx.update(cref, { fails: 0, lockUntil: now + 15 * 60000 });
+        return 'locked';
+      }
+      tx.update(cref, { fails });
+      return 'bad';
+    });
+    if (result === 'locked') fail(429, 'pin_locked');
+    if (result !== 'ok') fail(401, 'bad_credentials');
+
+    const u = await getUser(uid);
+    if (!u) fail(401, 'bad_credentials');
+    if (u.banned) fail(403, 'banned');
+    const cookie = await mintSession(uid);
+    res.cookie(COOKIE, cookie, { ...cookieOpts(), maxAge: SESSION_MS });
+    res.json({ ok: true, isNew: false, username: u.username });
+  })
+);
+
+app.get('/api/me', limiter(60000, 240), requireAuth, (req, res) => res.json(meView(req.user)));
 
 app.patch(
   '/api/me',
@@ -720,6 +880,7 @@ app.delete(
     await Promise.all(subs.docs.map((d) => d.ref.delete().catch(() => {})));
     await db.recursiveDelete(userRef(u.uid));
     await db.doc('usernames/' + u.username).delete();
+    await db.doc('credentials/' + u.uid).delete().catch(() => {});
     await auth.deleteUser(u.uid).catch(() => {});
     userCache.del(u.uid);
     profileCache.del(u.username);
@@ -740,8 +901,8 @@ app.get(
 
 app.post(
   '/api/public/u/:username/messages',
-  limiter(10 * 60000, 120),
-  limiter(10 * 60000, 8, (req) => getIp(req) + '|' + String(req.params.username).toLowerCase().slice(0, 20)),
+  limiter(10 * 60000, 400),
+  limiter(10 * 60000, 20, (req) => getIp(req) + '|' + String(req.params.username).toLowerCase().slice(0, 20)),
   wrap(async (req, res) => {
     const b = body(req);
     if (typeof b.hp === 'string' && b.hp.length) return res.json({ ok: true });
@@ -1350,6 +1511,7 @@ app.delete(
     await Promise.all(subs.docs.map((d) => d.ref.delete().catch(() => {})));
     await db.recursiveDelete(userRef(target));
     if (u.username) await db.doc('usernames/' + u.username).delete().catch(() => {});
+    await db.doc('credentials/' + target).delete().catch(() => {});
     await auth.deleteUser(target).catch((e) => console.error('[admin delete]', e.message));
     userCache.del(target);
     if (u.username) profileCache.del(u.username);
